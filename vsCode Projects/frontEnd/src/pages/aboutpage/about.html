@@ -3,27 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About</title>
-    <link href="./style.css" rel="stylesheet">
-
+    <title>About TutorConnect - Your Campus Tutoring Solution</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div>
-        <h1>About Our Tutoring Platform </h1>
-    </div>
-    <nav>
-        <ul>
-        <li><a href="../homepage/welcome.html">Welcome</a></li>
-        <li><a href="../aboutpage/about.html">About</a></li>
-        </ul>
-    </nav>
-    <h2>
-        Our tutoring platform connects students with tutors from their own school. Tutors can create profiles, select their school, list subjects they tutor, set hourly rates, and manage availability. Students can browse tutors, filter by subject and rating, and book sessions.
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="../aboutpage/about.html">About</a></li>
+                <li><a href="#" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="#" class="btn-secondary">Become a Tutor</a></li>
+            </ul>
+        </nav>
+    </header>
 
-The platform includes a private messaging system for students and tutors to communicate, negotiate rates, and arrange meeting locations. Payments can be made through Venmo, PayPal, or cash. After sessions, students can leave reviews to help others choose tutors.
+    <main>
+        <section class="about-hero">
+            <h1>About Our Tutoring Platform</h1>
+            <p class="subtitle">Connecting students with qualified tutors for academic success</p>
+        </section>
 
-The platform is built using React for the front-end and SQL, Node.js with Express for the back-end. It focuses on security, usability, and efficiency to provide a reliable tutoring experience.
-    </h2>
+        <section class="about-content">
+            <div class="about-card">
+                <h2>Our Mission</h2>
+                <p>
+                    TutorConnect was created to simplify the process of finding academic help on campus. 
+                    We believe that every student deserves access to quality tutoring from peers who understand 
+                    the specific challenges of their courses and institution.
+                </p>
+            </div>
 
+            <div class="about-card">
+                <h2>How It Works</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>For Tutors</h3>
+                        <ul class="feature-list">
+                            <li>Create detailed profiles showcasing your expertise</li>
+                            <li>Select your school and subjects you can tutor</li>
+                            <li>Set your own hourly rates based on your experience</li>
+                            <li>Manage your availability with our flexible calendar</li>
+                            <li>Communicate directly with potential students</li>
+                            <li>Receive payments through Venmo, PayPal, or cash</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>For Students</h3>
+                        <ul class="feature-list">
+                            <li>Browse tutors from your own school</li>
+                            <li>Filter by subject, rating, and availability</li>
+                            <li>Book sessions that fit your schedule</li>
+                            <li>Communicate with tutors via our messaging system</li>
+                            <li>Pay securely through preferred payment methods</li>
+                            <li>Leave reviews to help other students</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-card">
+                <h2>Our Technology</h2>
+                <p>
+                    TutorConnect is built using modern web technologies to ensure a seamless user experience:
+                </p>
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <span class="tech-icon">⚛️</span>
+                        <span class="tech-name">React</span>
+                        <span class="tech-desc">For a responsive and interactive front-end</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-icon">🗄️</span>
+                        <span class="tech-name">SQL</span>
+                        <span class="tech-desc">For secure and efficient data storage</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-icon">🚀</span>
+                        <span class="tech-name">Node.js & Express</span>
+                        <span class="tech-desc">For a robust back-end architecture</span>
+                    </div>
+                </div>
+                <p>
+                    Our platform prioritizes security, usability, and efficiency to provide a reliable 
+                    tutoring experience for all users.
+                </p>
+            </div>
+
+            <div class="about-card team-section">
+                <h2>Meet Our Team</h2>
+                <div class="team-members">
+                    <div class="team-member">
+                        <div class="member-avatar">JN</div>
+                        <h3>Johnathon Nelson</h3>
+                        <p>Full-stack Developer</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">DV</div>
+                        <h3>Daniel Vaca</h3>
+                        <p>UI/UX Designer</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">DD</div>
+                        <h3>Dylan Dao</h3>
+                        <p>Backend Engineer</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2>Ready to get started?</h2>
+                <p>Join our community of students and tutors today!</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn-primary">Find a Tutor</a>
+                    <a href="#" class="btn-outline">Become a Tutor</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
 </body>
 </html>
