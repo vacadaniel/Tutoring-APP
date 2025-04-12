@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor Profile - TutorConnect</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="../aboutpage/about.html">About</a></li>
+                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="./become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="tutor-profile">
+            <div class="profile-header">
+                <div class="profile-avatar" id="avatar"></div>
+                <div class="profile-info">
+                    <h1 id="tutor-name">Loading...</h1>
+                    <p class="tutor-school" id="tutor-school"></p>
+                    <div class="tutor-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="avg-rating">-</span>
+                            <span class="stat-label">Rating</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="total-sessions">-</span>
+                            <span class="stat-label">Sessions</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="total-reviews">-</span>
+                            <span class="stat-label">Reviews</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="message-btn" class="btn-primary">Message</button>
+                    <button id="book-btn" class="btn-outline">Book Session</button>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-section">
+                    <h2>About Me</h2>
+                    <p id="tutor-bio">
+                        This tutor hasn't added a bio yet.
+                    </p>
+                </div>
+
+                <div class="profile-section">
+                    <h2>Reviews</h2>
+                    <div id="reviews-container" class="reviews-list">
+                        <p class="loading-message">Loading reviews...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Modal (Hidden by default) -->
+        <div id="booking-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Book a Session</h2>
+                <form id="booking-form">
+                    <div class="input-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="booking-subject" name="subject" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="booking-date" name="date" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="time">Time</label>
+                        <input type="time" id="booking-time" name="time" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="notes">Notes (Optional)</label>
+                        <textarea id="booking-notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Request Session</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+    <script>
+        // Get tutor ID from URL query parameter
+        function getTutorId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Function to fetch tutor details
+        async function fetchTutorProfile() {
+            try {
+                const tutorId = getTutorId();
+                if (!tutorId) {
+                    alert('No tutor ID specified.');
+                    window.location.href = './tutors.html';
+                    return;
+                }
+                
+                // For demo, we'll use static data instead of making an API call
+                loadDemoProfile(tutorId);
+            } catch (error) {
+                console.error('Error fetching tutor profile:', error);
+                alert('Error loading tutor profile. Please try again later.');
+            }
+        }
+        
+        // Load demo profile data
+        function loadDemoProfile(tutorId) {
+            // Demo data for tutors
+            const tutorProfiles = {
+                "demo1": {
+                    name: "Dr. Morgan Taylor",
+                    school: "State University",
+                    avgRating: 4.8,
+                    appointments: 24,
+                    reviews: 18,
+                    bio: "I'm a Mathematics professor with 10 years of experience. I specialize in calculus, linear algebra, and statistics. My teaching philosophy focuses on building intuition rather than memorization."
+                },
+                "demo2": {
+                    name: "Prof. Riley Garcia",
+                    school: "Tech College",
+                    avgRating: 4.5,
+                    appointments: 32,
+                    reviews: 22,
+                    bio: "Chemistry specialist with expertise in organic chemistry and biochemistry. I've been tutoring for 8 years and have helped hundreds of students improve their grades and understanding of complex chemical concepts."
+                },
+                "demo3": {
+                    name: "Jordan Lee, PhD",
+                    school: "State University",
+                    avgRating: 5.0,
+                    appointments: 41,
+                    reviews: 38,
+                    bio: "Physics educator passionate about making complex concepts accessible to everyone. I focus on real-world applications and problem-solving strategies that help students excel in their coursework and beyond."
+                }
+            };
+            
+            // Sample reviews
+            const tutorReviews = {
+                "demo1": [
+                    { student: "Alex J.", rating: 5, comment: "Dr. Taylor made calculus make sense for the first time! Highly recommend.", date: "March 15, 2025" },
+                    { student: "Sam P.", rating: 5, comment: "Excellent at explaining complex topics. Very patient.", date: "February 22, 2025" },
+                    { student: "Jordan M.", rating: 4, comment: "Very knowledgeable and helpful. Would book again.", date: "January 10, 2025" }
+                ],
+                "demo2": [
+                    { student: "Casey R.", rating: 5, comment: "Prof. Garcia's explanations of organic chemistry mechanisms were crystal clear.", date: "March 20, 2025" },
+                    { student: "Taylor W.", rating: 4, comment: "Really helpful with lab report preparation and understanding experimental design.", date: "February 5, 2025" }
+                ],
+                "demo3": [
+                    { student: "Morgan K.", rating: 5, comment: "Quantum mechanics finally makes sense! Jordan is an amazing teacher.", date: "March 12, 2025" },
+                    { student: "Alex P.", rating: 5, comment: "Fantastic at breaking down complex physics problems into manageable steps.", date: "February 27, 2025" },
+                    { student: "Jamie L.", rating: 5, comment: "Best physics tutor I've ever had. Worth every penny.", date: "January 18, 2025" }
+                ]
+            };
+            
+            const profile = tutorProfiles[tutorId];
+            if (!profile) {
+                alert('Tutor not found.');
+                window.location.href = './tutors.html';
+                return;
+            }
+            
+            // Update the DOM with tutor information
+            document.title = `${profile.name} - TutorConnect`;
+            document.getElementById('tutor-name').textContent = profile.name;
+            document.getElementById('tutor-school').textContent = profile.school;
+            document.getElementById('avg-rating').textContent = profile.avgRating.toFixed(1);
+            document.getElementById('total-sessions').textContent = profile.appointments;
+            document.getElementById('total-reviews').textContent = profile.reviews;
+            document.getElementById('tutor-bio').textContent = profile.bio;
+            document.getElementById('avatar').textContent = profile.name.charAt(0);
+            
+            // Render reviews
+            const reviewsContainer = document.getElementById('reviews-container');
+            const reviews = tutorReviews[tutorId] || [];
+            
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
+            } else {
+                const reviewsHTML = reviews.map(review => `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="reviewer-name">${review.student}</span>
+                            <span class="review-rating">${review.rating.toFixed(1)} ★</span>
+                            <span class="review-date">${review.date}</span>
+                        </div>
+                        <p class="review-comment">${review.comment}</p>
+                    </div>
+                `).join('');
+                
+                reviewsContainer.innerHTML = reviewsHTML;
+            }
+        }
+        
+        // Handle booking form submission
+        function handleBookingSubmit(event) {
+            event.preventDefault();
+            
+            const subject = document.getElementById('booking-subject').value;
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+            const notes = document.getElementById('booking-notes').value;
+            
+            alert(`Booking request submitted!\n\nSubject: ${subject}\nDate: ${date}\nTime: ${time}\n\nPlease log in to see your appointments.`);
+            document.getElementById('booking-modal').style.display = 'none';
+        }
+        
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchTutorProfile();
+            
+            // Book session button
+            document.getElementById('book-btn').addEventListener('click', function() {
+                document.getElementById('booking-modal').style.display = 'block';
+            });
+            
+            // Message button
+            document.getElementById('message-btn').addEventListener('click', function() {
+                alert('Please log in to send messages to tutors.');
+            });
+            
+            // Close modal button
+            document.querySelector('.close-button').addEventListener('click', function() {
+                document.getElementById('booking-modal').style.display = 'none';
+            });
+            
+            // Booking form submission
+            document.getElementById('booking-form').addEventListener('submit', handleBookingSubmit);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('booking-modal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

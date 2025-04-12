@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - TutorConnect</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            text-align: center;
+            background: linear-gradient(0deg, rgba(255,175,0,1) 10%, rgba(92,15,136,1) 76%, rgba(23,0,42,1) 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navigation styles */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            padding: 0 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        nav ul {
+            padding: 0;
+            margin: 0;
+            display: flex;
+            list-style-type: none;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            display: block;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #fe7f2d;
+            color: #000000;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main content */
+        main {
+            padding-top: 100px;
+            padding-bottom: 50px;
+        }
+
+        /* Dashboard specific styles */
+        .dashboard-header {
+            text-align: center;
+            padding: 20px 0 40px;
+        }
+        
+        .dashboard-tabs {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .tab-btn {
+            background: transparent;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            opacity: 1;
+        }
+        
+        .tab-btn.active {
+            opacity: 1;
+            border-bottom: 3px solid #fe7f2d;
+        }
+        
+        .tab-pane {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .appointments-filter {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background-color: #fe7f2d;
+        }
+        
+        .appointment-card {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .appointment-subject {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .appointment-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background-color: #f0ad4e;
+            color: #000000;
+        }
+        
+        .status-confirmed {
+            background-color: #5bc0de;
+            color: #000000;
+        }
+        
+        .status-completed {
+            background-color: #5cb85c;
+            color: #000000;
+        }
+        
+        .status-canceled {
+            background-color: #d9534f;
+            color: #ffffff;
+        }
+        
+        .appointment-info {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .appointment-tutor {
+            flex: 1;
+        }
+        
+        .appointment-date {
+            flex: 1;
+            text-align: right;
+        }
+        
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Messages tab styles */
+        .messages-container {
+            display: flex;
+            height: 500px;
+            gap: 20px;
+            overflow: hidden;
+        }
+        
+        .conversations-list {
+            width: 30%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow-y: auto;
+        }
+        
+        .conversation-items {
+            padding: 10px;
+        }
+        
+        .conversation-item {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .conversation-item:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .conversation-item.active {
+            background-color: rgba(254, 127, 45, 0.3);
+        }
+        
+        .conversation-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .conversation-preview {
+            font-size: 0.9em;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            max-width: 70%;
+        }
+        
+        .message-sent {
+            margin-left: auto;
+            background-color: #fe7f2d;
+            color: #000000;
+            border-radius: 12px 12px 0 12px;
+            padding: 10px 15px;
+        }
+        
+        .message-received {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px 12px 12px 0;
+            padding: 10px 15px;
+        }
+        
+        .message-info {
+            font-size: 0.8em;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+        
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .message-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Profile tab styles */
+        .profile-form {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .save-button {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        /* Button styles */
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-primary, .btn-outline, .login-button {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #fe7f2d;
+            color: #000000;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff9045;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(254, 127, 45, 0.4);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: rgba(30, 5, 54, 0.95);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Rating input */
+        .rating-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .rating-input input {
+            display: none;
+        }
+
+        .rating-input label {
+            display: inline-block;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+            transition: color 0.3s;
+            margin-right: 10px;
+        }
+
+        .rating-input label:hover,
+        .rating-input label:hover ~ label,
+        .rating-input input:checked ~ label {
+            color: #fe7f2d;
+        }
+
+        /* Footer */
+        footer {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        footer p {
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: #fe7f2d;
+        }
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .messages-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .conversations-list {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 0 20px;
+            }
+            
+            nav ul li {
+                margin: 0 5px;
+            }
+            
+            nav ul li a {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+            
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .appointment-info {
+                flex-direction: column;
+            }
+            
+            .appointment-date {
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .appointment-header,
+            .appointment-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .appointment-status {
+                align-self: flex-start;
+                margin-top: 5px;
+            }
+            
+            .btn-primary, .btn-outline {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="./dashboard.html">Dashboard</a></li>
+                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="dashboard-header">
+            <h1>Welcome, <span id="user-name">Student</span>!</h1>
+            <p class="subtitle">Manage your tutoring sessions and messages</p>
+        </section>
+
+        <section class="dashboard-tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="appointments">My Appointments</button>
+                <button class="tab-btn" data-tab="messages">Messages</button>
+                <button class="tab-btn" data-tab="profile">My Profile</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Appointments Tab -->
+                <div class="tab-pane active" id="appointments-tab">
+                    <div class="section-header">
+                        <h2>My Appointments</h2>
+                        <a href="./tutors.html" class="btn-primary">Book New Session</a>
+                    </div>
+
+                    <div class="appointments-filter">
+                        <button class="filter-btn active" data-filter="upcoming">Upcoming</button>
+                        <button class="filter-btn" data-filter="past">Past</button>
+                        <button class="filter-btn" data-filter="pending">Pending</button>
+                    </div>
+
+                    <div id="appointments-list" class="appointments-list">
+                        <!-- Appointments will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div class="tab-pane" id="messages-tab">
+                    <h2>My Messages</h2>
+                    <div class="messages-container">
+                        <div class="conversations-list">
+                            <div class="section-header">
+                                <h3>Conversations</h3>
+                            </div>
+                            <div id="conversations" class="conversation-items">
+                                <!-- Conversations will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="chat-container">
+                            <div id="chat-messages" class="chat-messages">
+                                <div class="empty-state">
+                                    <p>Select a conversation to view messages</p>
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <form id="message-form" class="message-form">
+                                    <input type="text" id="message-input" class="message-input" placeholder="Type your message..." required>
+                                    <button type="submit" class="btn-primary">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div class="tab-pane" id="profile-tab">
+                    <h2>My Profile</h2>
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="profile-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="profile-email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="school">School</label>
+                                <input type="text" id="profile-school" name="school" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select id="profile-role" name="role" disabled>
+                                    <option value="student">Student</option>
+                                    <option value="tutor">Tutor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">New Password (leave blank to keep current)</label>
+                            <input type="password" id="profile-password" name="password">
+                        </div>
+                        <button type="submit" class="btn-primary save-button">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leave Review Modal -->
+        <div id="review-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Leave a Review</h2>
+                <form id="review-form">
+                    <input type="hidden" id="appointment-id">
+                    <div class="input-group">
+                        <label for="rating">Rating</label>
+                        <div class="rating-input">
+                            <input type="radio" id="star5" name="rating" value="5" required>
+                            <label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1">★</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="comment">Comment</label>
+                        <textarea id="review-comment" name="comment" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+    <script>
+        // Mock user data
+        const currentUser = {
+            _id: "user123",
+            name: "Alex Johnson",
+            email: "alex@example.com",
+            role: "student",
+            school: "State University"
+        };
+
+        // Mock appointments data
+        const appointments = [
+            {
+                _id: "appt1",
+                subject: "Mathematics",
+                status: "confirmed",
+                startTime: new Date(Date.now() + 86400000), // tomorrow
+                tutor: {
+                    _id: "tutor1",
+                    name: "Dr. Morgan Taylor"
+                }
+            },
+            {
+                _id: "appt2",
+                subject: "Physics",
+                status: "pending",
+                startTime: new Date(Date.now() + 604800000), // next week
+                tutor: {
+                    _id: "tutor3",
+                    name: "Jordan Lee, PhD"
+                }
+            },
+            {
+                _id: "appt3",
+                subject: "Chemistry",
+                status: "completed",
+                startTime: new Date(Date.now() - 604800000), // last week
+                tutor: {
+                    _id: "tutor2",
+                    name: "Prof. Riley Garcia"
+                }
+            }
+        ];
+
+        // Mock conversations data
+        const conversations = [
+            {
+                _id: "conv1",
+                participants: [
+                    {
+                        _id: "tutor1",
+                        name: "Dr. Morgan Taylor"
+                    }
+                ],
+                lastMessage: "Hi Alex, I would be happy to help you with calculus. When would you like to schedule a session?",
+                updatedAt: new Date(Date.now() - 86400000)
+            },
+            {
+                _id: "conv2",
+                participants: [
+                    {
+                        _id: "tutor3",
+                        name: "Jordan Lee, PhD"
+                    }
+                ],
+                lastMessage: "Those can be tricky! Let me know which specific topics you need help with and we can set up a session.",
+                updatedAt: new Date(Date.now() - 172800000)
+            }
+        ];
+
+        // Mock messages data
+        const messages = {
+            "conv1": [
+                {
+                    _id: "msg1",
+                    sender: {
+                        _id: "user123",
+                        name: "Alex Johnson"
+                    },
+                    messageText: "Hello, I need help with calculus.",
+                    createdAt: new Date(Date.now() - 90000000)
+                },
+                {
+                    _id: "msg2",
+                    sender: {
+                        _id: "tutor1",
+                        name: "Dr. Morgan Taylor"
+                    },
+                    messageText: "Hi Alex, I would be happy to help you with calculus. When would you like to schedule a session?",
+                    createdAt: new Date(Date.now() - 86400000)
+                }
+            ],
+            "conv2": [
+                {
+                    _id: "msg3",
+                    sender: {
+                        _id: "user123",
+                        name: "Alex Johnson"
+                    },
+                    messageText: "I am struggling with quantum mechanics concepts.",
+                    createdAt: new Date(Date.now() - 180000000)
+                },
+                {
+                    _id: "msg4",
+                    sender: {
+                        _id: "tutor3",
+                        name: "Jordan Lee, PhD"
+                    },
+                    messageText: "Those can be tricky! Let me know which specific topics you need help with and we can set up a session.",
+                    createdAt: new Date(Date.now() - 172800000)
+                }
+            ]
+        };
+
+        // Format date
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Load user data
+        function loadUserData() {
+            document.getElementById('user-name').textContent = currentUser.name;
+            
+            // Load profile data
+            document.getElementById('profile-name').value = currentUser.name;
+            document.getElementById('profile-email').value = currentUser.email;
+            document.getElementById('profile-school').value = currentUser.school;
+            document.getElementById('profile-role').value = currentUser.role;
+        }
+
+        // Load appointments
+        function loadAppointments(filter = 'upcoming') {
+            const appointmentsList = document.getElementById('appointments-list');
+            let filteredAppointments = [];
+            
+            const now = new Date();
+            
+            switch(filter) {
+                case 'upcoming':
+                    filteredAppointments = appointments.filter(a => 
+                        new Date(a.startTime) > now && 
+                        (a.status === 'confirmed' || a.status === 'pending')
+                    );
+                    break;
+                case 'past':
+                    filteredAppointments = appointments.filter(a => 
+                        new Date(a.startTime) < now || 
+                        a.status === 'completed' || 
+                        a.status === 'canceled'
+                    );
+                    break;
+                case 'pending':
+                    filteredAppointments = appointments.filter(a => a.status === 'pending');
+                    break;
+                default:
+                    filteredAppointments = appointments;
+            }
+            
+            if (filteredAppointments.length === 0) {
+                appointmentsList.innerHTML = '<p>No appointments found.</p>';
+                return;
+            }
+            
+            const appointmentsHTML = filteredAppointments.map(appointment => {
+                const date = formatDate(appointment.startTime);
+                
+                let actionsHTML = '';
+                if (appointment.status === 'confirmed') {
+                    actionsHTML = `
+                        <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment._id}')">Cancel</button>
+                        <button class="btn-primary btn-sm" onclick="messageAppointment('${appointment.tutor._id}')">Message</button>
+                    `;
+                } else if (appointment.status === 'completed') {
+                    actionsHTML = `
+                        <button class="btn-primary btn-sm" onclick="leaveReview('${appointment._id}')">Leave Review</button>
+                    `;
+                } else if (appointment.status === 'pending') {
+                    actionsHTML = `
+                        <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment._id}')">Cancel</button>
+                    `;
+                }
+                
+                return `
+                    <div class="appointment-card">
+                        <div class="appointment-header">
+                            <span class="appointment-subject">${appointment.subject}</span>
+                            <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
+                        </div>
+                        <div class="appointment-info">
+                            <div class="appointment-tutor">
+                                <strong>Tutor:</strong> ${appointment.tutor.name}
+                            </div>
+                            <div class="appointment-date">
+                                <strong>Date:</strong> ${date}
+                            </div>
+                        </div>
+                        <div class="appointment-actions">
+                            ${actionsHTML}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            appointmentsList.innerHTML = appointmentsHTML;
+        }
+
+        // Load conversations
+        function loadConversations() {
+            const conversationsContainer = document.getElementById('conversations');
+            
+            if (conversations.length === 0) {
+                conversationsContainer.innerHTML = '<p>No conversations found.</p>';
+                return;
+            }
+            
+            const conversationsHTML = conversations.map(conversation => {
+                const participant = conversation.participants[0];
+                return `
+                    <div class="conversation-item" data-id="${conversation._id}">
+                        <div class="conversation-name">${participant.name}</div>
+                        <div class="conversation-preview">${conversation.lastMessage}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            conversationsContainer.innerHTML = conversationsHTML;
+            
+            // Add click event to conversation items
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const conversationId = this.getAttribute('data-id');
+                    loadMessages(conversationId);
+                    
+                    // Mark as active
+                    document.querySelectorAll('.conversation-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        // Load messages for a conversation
+        function loadMessages(conversationId) {
+            const chatMessagesContainer = document.getElementById('chat-messages');
+            const conversationMessages = messages[conversationId] || [];
+            
+            if (conversationMessages.length === 0) {
+                chatMessagesContainer.innerHTML = '<p>No messages found.</p>';
+                return;
+            }
+            
+            const messagesHTML = conversationMessages.map(message => {
+                const isCurrentUser = message.sender._id === currentUser._id;
+                const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+                const date = formatDate(message.createdAt);
+                
+                return `
+                    <div class="message ${messageClass}">
+                        <div class="message-content">${message.messageText}</div>
+                        <div class="message-info">
+                            ${isCurrentUser ? 'You' : message.sender.name} • ${date}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            chatMessagesContainer.innerHTML = messagesHTML;
+            
+            // Scroll to bottom
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+            
+            // Store active conversation ID
+            document.getElementById('message-form').setAttribute('data-conversation', conversationId);
+        }
+
+        // Simulate sending a message
+        function sendMessage(conversationId, messageText) {
+            const newMessage = {
+                _id: `msg${Date.now()}`,
+                sender: {
+                    _id: currentUser._id,
+                    name: currentUser.name
+                },
+                messageText: messageText,
+                createdAt: new Date()
+            };
+            
+            // Add to messages
+            if (!messages[conversationId]) {
+                messages[conversationId] = [];
+            }
+            messages[conversationId].push(newMessage);
+            
+            // Update last message in conversation
+            const conversation = conversations.find(c => c._id === conversationId);
+            if (conversation) {
+                conversation.lastMessage = messageText;
+                conversation.updatedAt = new Date();
+            }
+            
+            // Reload messages
+            loadMessages(conversationId);
+        }
+
+        // Simulate canceling an appointment
+        function cancelAppointment(appointmentId) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                const appointment = appointments.find(a => a._id === appointmentId);
+                if (appointment) {
+                    appointment.status = 'canceled';
+                    
+                    // Reload appointments
+                    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                    loadAppointments(activeFilter);
+                    
+                    alert('Appointment canceled successfully.');
+                }
+            }
+        }
+
+        // Open message with tutor
+        function messageAppointment(tutorId) {
+            // Find or create conversation
+            let conversation = conversations.find(c => 
+                c.participants.some(p => p._id === tutorId)
+            );
+            
+            if (!conversation) {
+                // In a real app, you would create a new conversation here
+                alert('Conversation not found. This is a demo.');
+                return;
+            }
+            
+            // Switch to messages tab
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            document.querySelector('[data-tab="messages"]').classList.add('active');
+            document.getElementById('messages-tab').classList.add('active');
+            
+            // Select conversation
+            loadMessages(conversation._id);
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-id') === conversation._id) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Open review modal
+        function leaveReview(appointmentId) {
+            document.getElementById('appointment-id').value = appointmentId;
+            document.getElementById('review-modal').style.display = 'flex';
+        }
+
+        // Submit review
+        function submitReview(appointmentId, rating, comment) {
+            // In a real app, you would send this to the server
+            alert(`Review submitted: ${rating} stars - "${comment}"`);
+            
+            // Update appointment if needed
+            const appointment = appointments.find(a => a._id === appointmentId);
+            if (appointment) {
+                // In a real app, you might update the appointment status
+                console.log(`Review submitted for appointment: ${appointmentId}`);
+            }
+            
+            // Close modal
+            document.getElementById('review-modal').style.display = 'none';
+        }
+
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            loadUserData();
+            loadAppointments('upcoming');
+            loadConversations();
+            
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    // Update active tab button
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active tab pane
+                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                    document.getElementById(`${tabName}-tab`).classList.add('active');
+                });
+            });
+            
+            // Appointment filters
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Update active filter
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Load appointments with filter
+                    loadAppointments(filter);
+                });
+            });
+            
+            // Message form
+            document.getElementById('message-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const conversationId = this.getAttribute('data-conversation');
+                const messageInput = document.getElementById('message-input');
+                const messageText = messageInput.value.trim();
+                
+                if (messageText && conversationId) {
+                    sendMessage(conversationId, messageText);
+                    messageInput.value = '';
+                }
+            });
+            
+            // Review form
+            document.getElementById('review-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const appointmentId = document.getElementById('appointment-id').value;
+                const rating = document.querySelector('input[name="rating"]:checked').value;
+                const comment = document.getElementById('review-comment').value.trim();
+                
+                if (appointmentId && rating && comment) {
+                    submitReview(appointmentId, rating, comment);
+                }
+            });
+            
+            // Profile form
+            document.getElementById('profile-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('profile-name').value.trim();
+                const email = document.getElementById('profile-email').value.trim();
+                const school = document.getElementById('profile-school').value.trim();
+                const password = document.getElementById('profile-password').value.trim();
+                
+                // Update user data
+                currentUser.name = name;
+                currentUser.email = email;
+                currentUser.school = school;
+                
+                // Update display
+                document.getElementById('user-name').textContent = name;
+                
+                alert('Profile updated successfully!');
+            });
+            
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to log out?')) {
+                    // In a real app, you would clear the session/token
+                    alert('You have been logged out.');
+                    window.location.href = '../homepage/welcome.html';
+                }
+            });
+            
+            // Close modal buttons
+            document.querySelectorAll('.close-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -15,10 +15,13 @@ const ReviewSchema = new Schema({
     max: 5
   },
   comment: {
-    type: String
+    type: String,
+    required: true
   },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
+
+module.exports = mongoose.model('Review', ReviewSchema);

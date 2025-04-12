@@ -21,10 +21,16 @@ const AppointmentSchema = new Schema({
     type: Date,
     required: true
   },
+  endTime: {
+    type: Date
+  },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'completed', 'cancelled'],
+    enum: ['pending', 'confirmed', 'canceled', 'completed'],
     default: 'pending'
+  },
+  notes: {
+    type: String
   },
   createdAt: {
     type: Date,
