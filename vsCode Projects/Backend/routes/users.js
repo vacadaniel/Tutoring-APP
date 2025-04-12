@@ -1,7 +1,6 @@
 // routes/users.js
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../middleware/auth');
 
@@ -21,15 +20,11 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'User already exists' });
     }
     
-    // Hash the password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
-    // Create new user
+    // No hashing - store password as is
     const newUser = new User({
       name,
       email,
-      password: hashedPassword,
+      password, // Plain text password
       role,
       school
     });
@@ -58,7 +53,6 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 // User login
 router.post('/login', async (req, res) => {
   try {
@@ -70,9 +64,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // Compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    // Direct password comparison instead of bcrypt
+    if (password !== user.password) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
@@ -98,7 +91,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 // Get user profile
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
