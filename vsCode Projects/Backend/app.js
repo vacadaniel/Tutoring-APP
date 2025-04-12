@@ -18,7 +18,7 @@ app.use(cors()); // Enable CORS for front-end requests
 app.use(express.json()); // Parse JSON request bodies
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tutorconnect_db';
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://JohnDanielDylan:YOUR_ACTUAL_PASSWORD@tutor.acwtgsp.mongodb.net/?retryWrites=true&w=majority&appName=Tutor";
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('MongoDB connected successfully'))
