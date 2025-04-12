@@ -397,6 +397,36 @@
     </footer>
 
     <script>
+        // Add this at the beginning of your existing script
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const userString = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    
+    if (!userString || !token) {
+        // Not logged in
+        alert('Please log in to access your dashboard');
+        window.location.href = '../homepage/welcome.html';
+        return;
+    }
+    
+    const user = JSON.parse(userString);
+    
+    // Verify correct dashboard
+    if (user.role !== 'tutor') {
+        alert('Access denied. Redirecting to student dashboard.');
+        window.location.href = 'dashboard.html';
+        return;
+    }
+    
+    // Update username display
+    document.getElementById('user-name').textContent = user.name;
+    
+    // Proceed with loading dashboard data
+    loadUserData();
+    loadAppointments('upcoming');
+    loadConversations();
+});
         // Mock data for current tutor
         const currentTutor = {
             _id: "tutor1",
