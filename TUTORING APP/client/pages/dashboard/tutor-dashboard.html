@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor Dashboard - TutorConnect</title>
+    <link rel="stylesheet" href="./tutor-dashbaord.css">
+
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="./dashboard.html">Dashboard</a></li>
+                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="dashboard-header">
+            <h1>Welcome, <span id="tutor-name">Dr. Morgan</span>!</h1>
+            <p class="subtitle">Manage your tutoring sessions, messages, and availability</p>
+        </section>
+
+        <section class="dashboard-tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="overview">Overview</button>
+                <button class="tab-btn" data-tab="appointments">Appointments</button>
+                <button class="tab-btn" data-tab="messages">Messages</button>
+                <button class="tab-btn" data-tab="profile">Profile & Availability</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div class="tab-pane active" id="overview-tab">
+                    <h2>Dashboard Overview</h2>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Total Sessions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">4.8</div>
+                            <div class="stat-label">Average Rating</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">18</div>
+                            <div class="stat-label">Reviews</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Upcoming Sessions</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-header">
+                        <h3>Recent Reviews</h3>
+                        <a href="#" class="btn-outline btn-sm">View All</a>
+                    </div>
+                    
+                    <div class="reviews-container">
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">Alex J.</span>
+                                <span class="review-rating">5.0 ★</span>
+                                <span class="review-date">March 15, 2025</span>
+                            </div>
+                            <p class="review-comment">Dr. Taylor made calculus make sense for the first time! Highly recommend.</p>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">Sam P.</span>
+                                <span class="review-rating">5.0 ★</span>
+                                <span class="review-date">February 22, 2025</span>
+                            </div>
+                            <p class="review-comment">Excellent at explaining complex topics. Very patient.</p>
+                        </div>
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">Jordan M.</span>
+                                <span class="review-rating">4.0 ★</span>
+                                <span class="review-date">January 10, 2025</span>
+                            </div>
+                            <p class="review-comment">Very knowledgeable and helpful. Would book again.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="section-header" style="margin-top: 30px;">
+                        <h3>Upcoming Appointments</h3>
+                        <a href="#" class="btn-outline btn-sm" onclick="switchTab('appointments')">View All</a>
+                    </div>
+                    
+                    <div id="upcoming-appointments">
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <span class="appointment-subject">Mathematics</span>
+                                <span class="appointment-status status-confirmed">confirmed</span>
+                            </div>
+                            <div class="appointment-info">
+                                <div class="appointment-student">
+                                    <strong>Student:</strong> Alex Johnson
+                                </div>
+                                <div class="appointment-date">
+                                    <strong>Date:</strong> Apr 12, 2025, 2:00 PM
+                                </div>
+                            </div>
+                            <div class="appointment-actions">
+                                <button class="btn-outline btn-sm" onclick="cancelAppointment('appt1')">Cancel</button>
+                                <button class="btn-primary btn-sm" onclick="messageStudent('student1')">Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Tab -->
+                <div class="tab-pane" id="appointments-tab">
+                    <div class="section-header">
+                        <h2>My Appointments</h2>
+                    </div>
+
+                    <div class="appointments-filter">
+                        <button class="filter-btn active" data-filter="upcoming">Upcoming</button>
+                        <button class="filter-btn" data-filter="past">Past</button>
+                        <button class="filter-btn" data-filter="pending">Pending</button>
+                    </div>
+
+                    <div id="appointments-list" class="appointments-list">
+                        <!-- Appointments will be loaded here -->
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <span class="appointment-subject">Mathematics</span>
+                                <span class="appointment-status status-confirmed">confirmed</span>
+                            </div>
+                            <div class="appointment-info">
+                                <div class="appointment-student">
+                                    <strong>Student:</strong> Alex Johnson
+                                </div>
+                                <div class="appointment-date">
+                                    <strong>Date:</strong> Apr 12, 2025, 2:00 PM
+                                </div>
+                            </div>
+                            <div class="appointment-actions">
+                                <button class="btn-outline btn-sm" onclick="cancelAppointment('appt1')">Cancel</button>
+                                <button class="btn-primary btn-sm" onclick="messageStudent('student1')">Message</button>
+                            </div>
+                        </div>
+                        
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <span class="appointment-subject">Physics</span>
+                                <span class="appointment-status status-pending">pending</span>
+                            </div>
+                            <div class="appointment-info">
+                                <div class="appointment-student">
+                                    <strong>Student:</strong> Jamie Smith
+                                </div>
+                                <div class="appointment-date">
+                                    <strong>Date:</strong> Apr 18, 2025, 3:30 PM
+                                </div>
+                            </div>
+                            <div class="appointment-actions">
+                                <button class="btn-primary btn-sm" onclick="confirmAppointment('appt2')">Confirm</button>
+                                <button class="btn-outline btn-sm" onclick="declineAppointment('appt2')">Decline</button>
+                                <button class="btn-primary btn-sm" onclick="messageStudent('student2')">Message</button>
+                            </div>
+                        </div>
+                        
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <span class="appointment-subject">Chemistry</span>
+                                <span class="appointment-status status-completed">completed</span>
+                            </div>
+                            <div class="appointment-info">
+                                <div class="appointment-student">
+                                    <strong>Student:</strong> Alex Johnson
+                                </div>
+                                <div class="appointment-date">
+                                    <strong>Date:</strong> Apr 4, 2025, 10:00 AM
+                                </div>
+                            </div>
+                            <div class="appointment-actions">
+                                <button class="btn-primary btn-sm" onclick="messageStudent('student1')">Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div class="tab-pane" id="messages-tab">
+                    <h2>My Messages</h2>
+                    <div class="messages-container">
+                        <div class="conversations-list">
+                            <div class="section-header">
+                                <h3>Conversations</h3>
+                            </div>
+                            <div id="conversations" class="conversation-items">
+                                <div class="conversation-item active" data-id="conv1">
+                                    <div class="conversation-name">Alex Johnson</div>
+                                    <div class="conversation-preview">Hi Alex, I would be happy to help you with calculus. When would you like to schedule a session?</div>
+                                </div>
+                                <div class="conversation-item" data-id="conv2">
+                                    <div class="conversation-name">Jamie Smith</div>
+                                    <div class="conversation-preview">I am struggling with quantum mechanics concepts.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-container">
+                            <div id="chat-messages" class="chat-messages">
+                                <div class="message message-received">
+                                    <div class="message-content">Hello, I need help with calculus.</div>
+                                    <div class="message-info">
+                                        Alex Johnson • Apr 4, 2025, 10:30 AM
+                                    </div>
+                                </div>
+                                <div class="message message-sent">
+                                    <div class="message-content">Hi Alex, I would be happy to help you with calculus. When would you like to schedule a session?</div>
+                                    <div class="message-info">
+                                        You • Apr 4, 2025, 11:45 AM
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <form id="message-form" class="message-form" data-conversation="conv1">
+                                    <input type="text" id="message-input" class="message-input" placeholder="Type your message..." required>
+                                    <button type="submit" class="btn-primary">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile & Availability Tab -->
+                <div class="tab-pane" id="profile-tab">
+                    <h2>Profile & Availability</h2>
+                    
+                    <div class="profile-form">
+                        <h3>My Profile</h3>
+                        <form id="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name">Full Name</label>
+                                    <input type="text" id="profile-name" name="name" value="Dr. Morgan Taylor" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="profile-email" name="email" value="morgan@example.com" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="school">School</label>
+                                    <input type="text" id="profile-school" name="school" value="State University" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="hourly-rate">Hourly Rate ($)</label>
+                                    <input type="number" id="hourly-rate" name="hourly-rate" value="50" min="10" step="5" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="bio">About Me</label>
+                                <textarea id="bio" name="bio" rows="5">I'm a Mathematics professor with 10 years of experience. I specialize in calculus, linear algebra, and statistics. My teaching philosophy focuses on building intuition rather than memorization.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Subjects</label>
+                                <div class="subject-tags">
+                                    <div class="subject-tag">
+                                        Mathematics
+                                        <span class="remove-tag" data-subject="Mathematics">×</span>
+                                    </div>
+                                    <div class="subject-tag">
+                                        Calculus
+                                        <span class="remove-tag" data-subject="Calculus">×</span>
+                                    </div>
+                                    <div class="subject-tag">
+                                        Linear Algebra
+                                        <span class="remove-tag" data-subject="Linear Algebra">×</span>
+                                    </div>
+                                    <div class="subject-tag">
+                                        Statistics
+                                        <span class="remove-tag" data-subject="Statistics">×</span>
+                                    </div>
+                                </div>
+                                <input type="text" id="new-subject" placeholder="Add new subject and press Enter" style="margin-top: 10px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">New Password (leave blank to keep current)</label>
+                                <input type="password" id="profile-password" name="password">
+                            </div>
+                            <button type="submit" class="btn-primary save-button">Save Changes</button>
+                        </form>
+                    </div>
+                    
+                    <div class="availability-container">
+                        <div class="availability-header">
+                            <h3>My Availability</h3>
+                            <div class="calendar-controls">
+                                <button class="calendar-nav" id="prev-month">&lt;</button>
+                                <span class="calendar-month">April 2025</span>
+                                <button class="calendar-nav" id="next-month">&gt;</button>
+                            </div>
+                        </div>
+                        
+                        <table class="calendar">
+                            <thead>
+                                <tr>
+                                    <th>Sun</th>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="day other-month">30</div></td>
+                                    <td><div class="day other-month">31</div></td>
+                                    <td><div class="day">1</div></td>
+                                    <td><div class="day">2</div></td>
+                                    <td><div class="day">3</div></td>
+                                    <td><div class="day booked">4</div></td>
+                                    <td><div class="day available">5</div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="day available">6</div></td>
+                                    <td><div class="day available">7</div></td>
+                                    <td><div class="day available">8</div></td>
+                                    <td><div class="day available">9</div></td>
+                                    <td><div class="day available">10</div></td>
+                                    <td><div class="day available">11</div></td>
+                                    <td><div class="day booked">12</div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="day available">13</div></td>
+                                    <td><div class="day available">14</div></td>
+                                    <td><div class="day available">15</div></td>
+                                    <td><div class="day available">16</div></td>
+                                    <td><div class="day available">17</div></td>
+                                    <td><div class="day booked">18</div></td>
+                                    <td><div class="day available">19</div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="day available">20</div></td>
+                                    <td><div class="day today available">21</div></td>
+                                    <td><div class="day available">22</div></td>
+                                    <td><div class="day available">23</div></td>
+                                    <td><div class="day available">24</div></td>
+                                    <td><div class="day available">25</div></td>
+                                    <td><div class="day available">26</div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="day available">27</div></td>
+                                    <td><div class="day available">28</div></td>
+                                    <td><div class="day available">29</div></td>
+                                    <td><div class="day available">30</div></td>
+                                    <td><div class="day other-month">1</div></td>
+                                    <td><div class="day other-month">2</div></td>
+                                    <td><div class="day other-month">3</div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div id="selected-day" style="margin-top: 20px;">
+                            <h4>Time Slots for April 21, 2025</h4>
+                            <div class="time-slots">
+                                <div class="time-slot available">9:00 AM</div>
+                                <div class="time-slot available">10:00 AM</div>
+                                <div class="time-slot available">11:00 AM</div>
+                                <div class="time-slot">12:00 PM</div>
+                                <div class="time-slot">1:00 PM</div>
+                                <div class="time-slot available">2:00 PM</div>
+                                <div class="time-slot available">3:00 PM</div>
+                                <div class="time-slot available">4:00 PM</div>
+                                <div class="time-slot">5:00 PM</div>
+                            </div>
+                            <button class="btn-primary" style="margin-top: 20px;">Save Availability</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+<!-- Add this right before the closing </body> tag in tutor-dashboard.html -->
+<script src="/js/auth.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Require authentication
+    if (!Auth.requireAuth()) {
+      return; // This will redirect to login page if not authenticated
+    }
+    
+    const user = Auth.getCurrentUser();
+    
+    // Verify correct dashboard
+    if (user.role !== 'tutor') {
+      alert('Access denied. Redirecting to student dashboard.');
+      window.location.href = '/dashboard/dashboard.html';
+      return;
+    }
+    
+    // Update username display
+    document.getElementById('tutor-name').textContent = user.name;
+    
+    // Load tutor data
+    loadTutorData();
+    loadAppointments('upcoming');
+    loadMessages('conv1'); // Load first conversation
+    
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        switchTab(tabName);
+      });
+    });
+    
+    // Appointment filters
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        const filter = this.getAttribute('data-filter');
+        loadAppointments(filter);
+      });
+    });
+    
+    // Load conversations
+    loadConversations();
+    
+    // Message form
+    document.getElementById('message-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const conversationId = this.getAttribute('data-conversation');
+      const messageInput = document.getElementById('message-input');
+      const messageText = messageInput.value.trim();
+      
+      if (messageText && conversationId) {
+        sendMessage(conversationId, messageText);
+        messageInput.value = '';
+      }
+    });
+    
+    // Profile form
+    document.getElementById('profile-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('profile-name').value.trim();
+      const email = document.getElementById('profile-email').value.trim();
+      const school = document.getElementById('profile-school').value.trim();
+      const hourlyRate = document.getElementById('hourly-rate').value;
+      const bio = document.getElementById('bio').value.trim();
+      const password = document.getElementById('profile-password').value.trim();
+      
+      updateProfile({
+        name, 
+        email,
+        school,
+        hourly_rate: hourlyRate,
+        bio,
+        password: password || undefined
+      });
+    });
+    
+    // Add new subject
+    const newSubjectInput = document.getElementById('new-subject');
+    newSubjectInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        
+        const subject = this.value.trim();
+        if (subject) {
+          addSubjectTag(subject);
+          this.value = '';
+        }
+      }
+    });
+    
+    // Remove subject tags
+    document.querySelectorAll('.remove-tag').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const subject = this.getAttribute('data-subject');
+        this.parentElement.remove();
+      });
+    });
+    
+    // Calendar day selection
+    document.querySelectorAll('.day').forEach(day => {
+      day.addEventListener('click', function() {
+        if (!this.classList.contains('other-month')) {
+          document.querySelectorAll('.day').forEach(d => {
+            d.classList.remove('selected');
+          });
+          
+          this.classList.add('selected');
+          
+          // Update selected day heading
+          const date = this.textContent.trim();
+          document.querySelector('#selected-day h4').textContent = `Time Slots for April ${date}, 2025`;
+        }
+      });
+    });
+    
+    // Time slot selection
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      slot.addEventListener('click', function() {
+        this.classList.toggle('available');
+      });
+    });
+    
+    // Logout button
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      if (confirm('Are you sure you want to log out?')) {
+        Auth.logoutUser();
+      }
+    });
+  });
+  
+  // Tab switching function
+  function switchTab(tabName) {
+    // Update active tab button
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-tab') === tabName) {
+        btn.classList.add('active');
+      }
+    });
+    
+    // Update active tab pane
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+      pane.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+  }
+  
+  // Load tutor data
+  async function loadTutorData() {
+    try {
+      const response = await Auth.authFetch('/users/profile');
+      
+      if (!response.ok) {
+        throw new Error('Failed to load tutor data');
+      }
+      
+      const tutorData = await response.json();
+      
+      // Load profile data
+      document.getElementById('profile-name').value = tutorData.name;
+      document.getElementById('profile-email').value = tutorData.email;
+      document.getElementById('profile-school').value = tutorData.school;
+      document.getElementById('hourly-rate').value = tutorData.hourly_rate || 50;
+      document.getElementById('bio').value = tutorData.bio || '';
+      
+      // Load subjects
+      if (tutorData.subjects && tutorData.subjects.length > 0) {
+        const subjectTags = document.querySelector('.subject-tags');
+        subjectTags.innerHTML = '';
+        
+        tutorData.subjects.forEach(subject => {
+          addSubjectTag(subject);
+        });
+      }
+      
+      // Load stats
+      await loadStats();
+    } catch (error) {
+      console.error('Error loading tutor data:', error);
+    }
+  }
+  
+  // Load tutor stats
+  async function loadStats() {
+    try {
+      const tutorId = Auth.getCurrentUser().id;
+      
+      // Get reviews
+      const reviewsResponse = await fetch(`http://localhost:5000/reviews/tutor/${tutorId}`);
+      
+      if (!reviewsResponse.ok) {
+        throw new Error('Failed to load reviews');
+      }
+      
+      const reviewsData = await reviewsResponse.json();
+      
+      // Update stats
+      document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = 
+        await getCompletedSessionsCount();
+      document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = 
+        reviewsData.avg_rating.toFixed(1);
+      document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = 
+        reviewsData.total_reviews;
+      document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = 
+        await getUpcomingSessionsCount();
+      
+      // Update reviews
+      const reviewsContainer = document.querySelector('.reviews-container');
+      
+      if (reviewsData.reviews.length === 0) {
+        reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
+        return;
+      }
+      
+      const reviewsHTML = reviewsData.reviews.slice(0, 3).map(review => {
+        const date = new Date(review.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        
+        return `
+          <div class="review-item">
+            <div class="review-header">
+              <span class="reviewer-name">${review.student_name}</span>
+              <span class="review-rating">${review.rating.toFixed(1)} ★</span>
+              <span class="review-date">${date}</span>
+            </div>
+            <p class="review-comment">${review.comment}</p>
+          </div>
+        `;
+      }).join('');
+      
+      reviewsContainer.innerHTML = reviewsHTML;
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  }
+  
+  // Get count of completed sessions
+  async function getCompletedSessionsCount() {
+    try {
+      const response = await Auth.authFetch('/appointments?status=completed');
+      
+      if (!response.ok) {
+        throw new Error('Failed to load completed sessions');
+      }
+      
+      const appointments = await response.json();
+      return appointments.length;
+    } catch (error) {
+      console.error('Error loading completed sessions count:', error);
+      return 0;
+    }
+  }
+  
+  // Get count of upcoming sessions
+  async function getUpcomingSessionsCount() {
+    try {
+      const response = await Auth.authFetch('/appointments?status=confirmed');
+      
+      if (!response.ok) {
+        throw new Error('Failed to load upcoming sessions');
+      }
+      
+      const appointments = await response.json();
+      return appointments.length;
+    } catch (error) {
+      console.error('Error loading upcoming sessions count:', error);
+      return 0;
+    }
+  }
+  
+  // Load appointments based on filter
+  async function loadAppointments(filter = 'upcoming') {
+    try {
+      let url = '/appointments';
+      if (filter) {
+        url += `?status=${filter}`;
+      }
+      
+      const response = await Auth.authFetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Failed to load appointments');
+      }
+      
+      const appointments = await response.json();
+      const appointmentsList = document.getElementById('appointments-list');
+      
+      if (appointments.length === 0) {
+        appointmentsList.innerHTML = '<p>No appointments found.</p>';
+        return;
+      }
+      
+      const appointmentsHTML = appointments.map(appointment => {
+        const date = new Date(appointment.start_time).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        let actionsHTML = '';
+        if (appointment.status === 'confirmed') {
+          actionsHTML = `
+            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+          `;
+        } else if (appointment.status === 'pending') {
+          actionsHTML = `
+            <button class="btn-primary btn-sm" onclick="confirmAppointment('${appointment.id}')">Confirm</button>
+            <button class="btn-outline btn-sm" onclick="declineAppointment('${appointment.id}')">Decline</button>
+            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+          `;
+        } else if (appointment.status === 'completed') {
+          actionsHTML = `
+            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+          `;
+        }
+        
+        return `
+          <div class="appointment-card">
+            <div class="appointment-header">
+              <span class="appointment-subject">${appointment.subject}</span>
+              <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
+            </div>
+            <div class="appointment-info">
+              <div class="appointment-student">
+                <strong>Student:</strong> ${appointment.student_name}
+              </div>
+              <div class="appointment-date">
+                <strong>Date:</strong> ${date}
+              </div>
+            </div>
+            <div class="appointment-actions">
+              ${actionsHTML}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      appointmentsList.innerHTML = appointmentsHTML;
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+      document.getElementById('appointments-list').innerHTML = `
+        <div class="error-message">
+          <p>Error loading appointments. Please try again later.</p>
+        </div>
+      `;
+    }
+  }
+  
+  // Load conversations
+  async function loadConversations() {
+    try {
+      const response = await Auth.authFetch('/messages/conversations');
+      
+      if (!response.ok) {
+        throw new Error('Failed to load conversations');
+      }
+      
+      const conversations = await response.json();
+      const conversationsContainer = document.getElementById('conversations');
+      
+      if (conversations.length === 0) {
+        conversationsContainer.innerHTML = '<p>No conversations found.</p>';
+        return;
+      }
+      
+      const conversationsHTML = conversations.map(conversation => {
+        const participant = conversation.participant;
+        const lastMessage = conversation.lastMessage ? conversation.lastMessage.text : 'No messages yet';
+        
+        return `
+          <div class="conversation-item" data-id="${conversation.id}">
+            <div class="conversation-name">${participant.name}</div>
+            <div class="conversation-preview">${lastMessage}</div>
+          </div>
+        `;
+      }).join('');
+      
+      conversationsContainer.innerHTML = conversationsHTML;
+      
+      // Add click event to conversation items
+      document.querySelectorAll('.conversation-item').forEach(item => {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.conversation-item').forEach(i => {
+            i.classList.remove('active');
+          });
+          this.classList.add('active');
+          
+          const conversationId = this.getAttribute('data-id');
+          loadMessages(conversationId);
+        });
+      });
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    }
+  }
+  
+  // Load messages for a conversation
+  async function loadMessages(conversationId) {
+    try {
+      const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to load messages');
+      }
+      
+      const messages = await response.json();
+      const chatMessagesContainer = document.getElementById('chat-messages');
+      
+      if (messages.length === 0) {
+        chatMessagesContainer.innerHTML = '<p>No messages found.</p>';
+        return;
+      }
+      
+      const messagesHTML = messages.map(message => {
+        const isCurrentUser = message.sent_by_me;
+        const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+        const date = new Date(message.created_at).toLocaleString();
+        
+        return `
+          <div class="message ${messageClass}">
+            <div class="message-content">${message.text}</div>
+            <div class="message-info">
+              ${isCurrentUser ? 'You' : message.sender.name} • ${date}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      chatMessagesContainer.innerHTML = messagesHTML;
+      
+      // Scroll to bottom
+      chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      
+      // Store active conversation ID
+      document.getElementById('message-form').setAttribute('data-conversation', conversationId);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  }
+  
+  // Send a message
+  async function sendMessage(conversationId, messageText) {
+    try {
+      const response = await Auth.authFetch(`/messages/conversations/${conversationId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message_text: messageText
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      
+      // Reload messages
+      loadMessages(conversationId);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message');
+    }
+  }
+  
+  // Handle appointment actions
+  async function confirmAppointment(appointmentId) {
+    try {
+      const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'confirmed'
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to confirm appointment');
+      }
+      
+      // Reload appointments
+      const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+      loadAppointments(activeFilter);
+      
+      alert('Appointment confirmed successfully!');
+    } catch (error) {
+      console.error('Error confirming appointment:', error);
+      alert('Failed to confirm appointment');
+    }
+  }
+  
+  async function declineAppointment(appointmentId) {
+    if (confirm('Are you sure you want to decline this appointment?')) {
+      try {
+        const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'canceled'
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to decline appointment');
+        }
+        
+        // Reload appointments
+        const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+        loadAppointments(activeFilter);
+        
+        alert('Appointment declined successfully!');
+      } catch (error) {
+        console.error('Error declining appointment:', error);
+        alert('Failed to decline appointment');
+      }
+    }
+  }
+  
+  async function cancelAppointment(appointmentId) {
+    if (confirm('Are you sure you want to cancel this appointment?')) {
+      try {
+        const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'canceled'
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to cancel appointment');
+        }
+        
+        // Reload appointments
+        const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+        loadAppointments(activeFilter);
+        
+        alert('Appointment canceled successfully!');
+      } catch (error) {
+        console.error('Error canceling appointment:', error);
+        alert('Failed to cancel appointment');
+      }
+    }
+  }
+  
+  async function messageStudent(studentId) {
+    try {
+      // Create or get conversation with student
+      const response = await Auth.authFetch('/messages/conversations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          participant_id: studentId
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create conversation');
+      }
+      
+      const conversation = await response.json();
+      
+      // Switch to messages tab
+      switchTab('messages');
+      
+      // Load messages and select conversation
+      await loadConversations(); // Reload conversations first
+      
+      // Find and click the conversation
+      document.querySelectorAll('.conversation-item').forEach(item => {
+        if (item.getAttribute('data-id') === conversation.id) {
+          item.click();
+        }
+      });
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      alert('Failed to create conversation');
+    }
+  }
+  
+  // Update profile
+  async function updateProfile(profileData) {
+    try {
+      const response = await Auth.authFetch('/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+      
+      const updatedUser = await response.json();
+      
+      // Update localStorage with new user data (except password)
+      const currentUser = Auth.getCurrentUser();
+      const newUserData = {
+        ...currentUser,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        school: updatedUser.school
+      };
+      localStorage.setItem('user', JSON.stringify(newUserData));
+      
+      // Update display
+      document.getElementById('tutor-name').textContent = updatedUser.name;
+      
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Profile update error:', error);
+      alert('Failed to update profile: ' + error.message);
+    }
+  }
+  
+  // Add subject tag
+  function addSubjectTag(subject) {
+    const subjectTags = document.querySelector('.subject-tags');
+    
+    const tagHTML = `
+      <div class="subject-tag">
+        ${subject}
+        <span class="remove-tag" data-subject="${subject}">×</span>
+      </div>
+    `;
+    
+    subjectTags.innerHTML += tagHTML;
+    
+    // Add event listener to new remove button
+    const newTag = subjectTags.lastElementChild;
+    newTag.querySelector('.remove-tag').addEventListener('click', function() {
+      this.parentElement.remove();
+    });
+  }
+</script>
+4. For become-tutor.html
+html<!-- Add this right before the closing </body> tag in become-tutor.html -->
+<script src="/js/auth.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const subjectInput = document.getElementById('new-subject');
+    const subjectTags = document.getElementById('subject-tags');
+    const subjects = new Set();
+    
+    // Add subject tag when Enter is pressed
+    subjectInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const subject = this.value.trim();
+        
+        if (subject && !subjects.has(subject)) {
+          addSubjectTag(subject);
+          this.value = '';
+        }
+      }
+    });
+    
+    // Function to add a subject tag
+    function addSubjectTag(subject) {
+      subjects.add(subject);
+      
+      const tag = document.createElement('div');
+      tag.className = 'subject-tag';
+      tag.innerHTML = `
+          ${subject}
+          <span class="remove-tag" data-subject="${subject}">×</span>
+      `;
+      
+      subjectTags.appendChild(tag);
+      
+      // Add click event to remove button
+      tag.querySelector('.remove-tag').addEventListener('click', function() {
+        const subject = this.getAttribute('data-subject');
+        subjects.delete(subject);
+        this.parentElement.remove();
+      });
+    }
+    
+    // Form submission
+    document.getElementById('tutor-signup-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Get form values
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const school = document.getElementById('school').value;
+      const hourlyRate = document.getElementById('hourly-rate').value;
+      const bio = document.getElementById('bio').value.trim();
+      
+      // Basic validation
+      if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+      }
+      
+      if (subjects.size === 0) {
+        alert('Please add at least one subject you can teach.');
+        return;
+      }
+      
+      try {
+        // Register as tutor
+        const userData = {
+          name,
+          email,
+          password,
+          role: 'tutor',
+          school,
+          hourly_rate: hourlyRate,
+          bio,
+          subjects: Array.from(subjects)
+        };
+        
+        const data = await Auth.registerUser(userData);
+        
+        alert(`Thank you for signing up as a tutor, ${name}! Your account will be reviewed shortly.`);
+        
+        // Redirect to tutor dashboard
+        window.location.href = '/dashboard/tutor-dashboard.html';
+      } catch (error) {
+        alert('Registration failed: ' + error.message);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Tutor - TutorConnect</title>
+    <link rel="stylesheet" href="./tutor-signup.css">
+  
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="../aboutpage/about.html">About</a></li>
+                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="./become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="tutor-signup">
+            <div class="form-header">
+                <h1>Become a Tutor</h1>
+                <p class="subtitle">Share your knowledge and earn money on your own schedule</p>
+            </div>
+            
+            <div class="form-card">
+                <form id="tutor-signup-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" name="confirm-password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="school">School</label>
+                            <select id="school" name="school" required>
+                                <option value="">Select your school</option>
+                                <option value="State University">State University</option>
+                                <option value="Tech College">Tech College</option>
+                                <option value="Community College">Community College</option>
+                                <option value="Liberal Arts College">Liberal Arts College</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hourly-rate">Hourly Rate ($)</label>
+                            <input type="number" id="hourly-rate" name="hourly-rate" min="10" step="5" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">About Yourself</label>
+                        <textarea id="bio" name="bio" placeholder="Tell students about your experience, qualifications, and teaching style..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-subject">Subjects You Can Teach</label>
+                        <div class="subject-input-container">
+                            <input type="text" id="new-subject" placeholder="Enter a subject and press Enter">
+                        </div>
+                        <div class="subject-tags" id="subject-tags">
+                            <!-- Subject tags will be added here -->
+                        </div>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="virtual" checked>
+                            I am available for virtual sessions
+                        </label>
+                        <label>
+                            <input type="checkbox" name="in-person" checked>
+                            I am available for in-person sessions
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary submit-button">Create Tutor Account</button>
+                </form>
+            </div>
+            
+            <div class="signup-benefits">
+                <h2>Why Become a Tutor with Us?</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💰</div>
+                        <div class="benefit-title">Earn on Your Terms</div>
+                        <p>Set your own hourly rate and work as much or as little as you want.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🗓️</div>
+                        <div class="benefit-title">Flexible Schedule</div>
+                        <p>Create your own availability and accept only the sessions that fit your schedule.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎓</div>
+                        <div class="benefit-title">Help Fellow Students</div>
+                        <p>Share your knowledge and make a positive impact on others' academic success.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⭐</div>
+                        <div class="benefit-title">Build Your Reputation</div>
+                        <p>Earn reviews and ratings to showcase your teaching abilities.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+
+    <script src="/js/auth.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const subjectInput = document.getElementById('new-subject');
+        const subjectTags = document.getElementById('subject-tags');
+        const subjects = new Set();
+        
+        // Add subject tag when Enter is pressed
+        subjectInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const subject = this.value.trim();
+            
+            if (subject && !subjects.has(subject)) {
+              addSubjectTag(subject);
+              this.value = '';
+            }
+          }
+        });
+        
+        // Function to add a subject tag
+        function addSubjectTag(subject) {
+          subjects.add(subject);
+          
+          const tag = document.createElement('div');
+          tag.className = 'subject-tag';
+          tag.innerHTML = `
+              ${subject}
+              <span class="remove-tag" data-subject="${subject}">×</span>
+          `;
+          
+          subjectTags.appendChild(tag);
+          
+          // Add click event to remove button
+          tag.querySelector('.remove-tag').addEventListener('click', function() {
+            const subject = this.getAttribute('data-subject');
+            subjects.delete(subject);
+            this.parentElement.remove();
+          });
+        }
+        
+        // Form submission
+        document.getElementById('tutor-signup-form').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          // Get form values
+          const name = document.getElementById('name').value.trim();
+          const email = document.getElementById('email').value.trim();
+          const password = document.getElementById('password').value;
+          const confirmPassword = document.getElementById('confirm-password').value;
+          const school = document.getElementById('school').value;
+          const hourlyRate = document.getElementById('hourly-rate').value;
+          const bio = document.getElementById('bio').value.trim();
+          
+          // Basic validation
+          if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+          }
+          
+          if (subjects.size === 0) {
+            alert('Please add at least one subject you can teach.');
+            return;
+          }
+          
+          try {
+            // Register as tutor
+            const userData = {
+              name,
+              email,
+              password,
+              role: 'tutor',
+              school,
+              hourlyRate,
+              bio,
+              subjects: Array.from(subjects)
+            };
+            
+            await Auth.registerUser(userData);
+            
+            alert(`Thank you for signing up as a tutor, ${name}! Your account will be reviewed shortly.`);
+            
+            // Redirect to tutor dashboard
+            window.location.href = '/dashboard/tutor-dashboard.html';
+          } catch (error) {
+            alert('Registration failed: ' + error.message);
+          }
+        });
+      });
+    </script>
+</body>
+</html>
