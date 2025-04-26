@@ -1,6 +1,4 @@
-// frontend/js/auth.js
-
-// API base URL
+// This should be in frontend/js/auth.js
 const API_URL = 'http://localhost:5000';
 
 // Function to register a new user
@@ -123,3 +121,4 @@ window.Auth = {
   authFetch,
   requireAuth
 };
+
