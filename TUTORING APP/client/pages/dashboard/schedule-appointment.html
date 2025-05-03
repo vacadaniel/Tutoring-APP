@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Appointment - TutorConnect</title>
+    <link rel="stylesheet" href="./schedule-appointment.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="../dashboard/dashboard.html">Dashboard</a></li>
+                <li><a href="../dashboard/tutors.html" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="appointment-container">
+            <h1>Schedule a Tutoring Session</h1>
+            
+            <div class="appointment-grid">
+                <div class="tutor-info-card">
+                    <div class="tutor-header">
+                        <div id="tutor-avatar" class="tutor-avatar">?</div>
+                        <div>
+                            <h2 id="tutor-name">Loading...</h2>
+                            <p id="tutor-school" class="tutor-school">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tutor-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Rating:</span>
+                            <span id="tutor-rating" class="detail-value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Hourly Rate:</span>
+                            <span id="tutor-rate" class="detail-value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Subjects:</span>
+                            <div id="tutor-subjects" class="subject-tags"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tutor-bio">
+                        <h3>About this Tutor</h3>
+                        <p id="tutor-bio-text">Loading tutor information...</p>
+                    </div>
+                </div>
+                
+                <div class="appointment-form-container">
+                    <form id="appointment-form" class="appointment-form">
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <!-- Subjects will be loaded dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="time">Time</label>
+                                <select id="time" name="time" required>
+                                    <option value="">Select a time</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="17:00">5:00 PM</option>
+                                    <option value="18:00">6:00 PM</option>
+                                    <option value="19:00">7:00 PM</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="duration">Duration</label>
+                                <select id="duration" name="duration" required>
+                                    <option value="60">1 hour</option>
+                                    <option value="90">1.5 hours</option>
+                                    <option value="120">2 hours</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="location-type">Location Type</label>
+                            <div class="toggle-container">
+                                <label class="toggle-option">
+                                    <input type="radio" name="location-type" value="virtual" checked>
+                                    <span>Virtual</span>
+                                </label>
+                                <label class="toggle-option">
+                                    <input type="radio" name="location-type" value="in-person">
+                                    <span>In-Person</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="virtual-details" class="form-group">
+                            <label for="meeting-platform">Meeting Platform</label>
+                            <select id="meeting-platform" name="meeting-platform">
+                                <option value="zoom">Zoom</option>
+                                <option value="google-meet">Google Meet</option>
+                                <option value="microsoft-teams">Microsoft Teams</option>
+                                <option value="skype">Skype</option>
+                            </select>
+                        </div>
+                        
+                        <div id="in-person-details" class="form-group" style="display: none;">
+                            <label for="meeting-location">Meeting Location</label>
+                            <select id="meeting-location" name="meeting-location">
+                                <option value="library">University Library</option>
+                                <option value="student-center">Student Center</option>
+                                <option value="cafe">Campus Café</option>
+                                <option value="other">Other (specify in notes)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes">Notes for the Tutor (Optional)</label>
+                            <textarea id="notes" name="notes" placeholder="Describe what you need help with..."></textarea>
+                        </div>
+                        
+                        <div class="price-summary">
+                            <div class="summary-item">
+                                <span>Hourly Rate:</span>
+                                <span id="summary-rate">$0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Duration:</span>
+                                <span id="summary-duration">1 hour</span>
+                            </div>
+                            <div class="summary-item total">
+                                <span>Total:</span>
+                                <span id="summary-total">$0</span>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">Request Appointment</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Require authentication and student role
+            if (!Auth.requireAuth()) {
+                return; // Redirect to login page
+            }
+            
+            const user = Auth.getCurrentUser();
+            if (user.role !== 'student') {
+                alert('Only students can book appointments');
+                window.location.href = '../dashboard/dashboard.html';
+                return;
+            }
+            
+            // Get tutor ID from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const tutorId = urlParams.get('id');
+            
+            if (!tutorId) {
+                alert('No tutor selected. Please select a tutor first.');
+                window.location.href = '../dashboard/tutors.html';
+                return;
+            }
+            
+            // Fetch tutor details
+            fetchTutorDetails(tutorId);
+            
+            // Setup form event listeners
+            setupFormListeners(tutorId);
+            
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to log out?')) {
+                    Auth.logoutUser();
+                }
+            });
+        });
+        
+        // Fetch tutor details from API
+        async function fetchTutorDetails(tutorId) {
+            try {
+                // This is a public endpoint, no authentication required
+                const response = await fetch(`http://localhost:5000/users/tutors/${tutorId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load tutor details');
+                }
+                
+                const tutor = await response.json();
+                
+                // Update tutor info in UI
+                document.getElementById('tutor-name').textContent = tutor.name;
+                document.getElementById('tutor-school').textContent = tutor.school;
+                document.getElementById('tutor-avatar').textContent = tutor.name.charAt(0);
+                
+                // Calculate and display average rating
+                let avgRating = 0;
+                if (tutor.reviews && tutor.reviews.length > 0) {
+                    const sum = tutor.reviews.reduce((total, review) => total + review.rating, 0);
+                    avgRating = (sum / tutor.reviews.length).toFixed(1);
+                    document.getElementById('tutor-rating').textContent = `${avgRating} ★ (${tutor.reviews.length} reviews)`;
+                } else {
+                    document.getElementById('tutor-rating').textContent = 'No ratings yet';
+                }
+                
+                // Update hourly rate
+                const hourlyRate = tutor.hourly_rate || 30; // Default $30 if not set
+                document.getElementById('tutor-rate').textContent = `$${hourlyRate}/hour`;
+                
+                // Update price summary
+                document.getElementById('summary-rate').textContent = `$${hourlyRate}`;
+                updateTotalPrice(hourlyRate);
+                
+                // Update bio
+                document.getElementById('tutor-bio-text').textContent = tutor.bio || 'No bio available.';
+                
+                // Load subjects
+                if (tutor.subjects && tutor.subjects.length > 0) {
+                    const subjectsContainer = document.getElementById('tutor-subjects');
+                    const subjectSelect = document.getElementById('subject');
+                    
+                    // Clear any existing options
+                    while (subjectSelect.options.length > 1) {
+                        subjectSelect.remove(1);
+                    }
+                    
+                    // Add subject tags and options
+                    tutor.subjects.forEach(subject => {
+                        // Add to tags
+                        const tag = document.createElement('span');
+                        tag.className = 'subject-tag';
+                        tag.textContent = subject;
+                        subjectsContainer.appendChild(tag);
+                        
+                        // Add to select dropdown
+                        const option = document.createElement('option');
+                        option.value = subject;
+                        option.textContent = subject;
+                        subjectSelect.appendChild(option);
+                    });
+                } else {
+                    document.getElementById('tutor-subjects').innerHTML = '<em>No subjects listed</em>';
+                }
+            } catch (error) {
+                console.error('Error fetching tutor details:', error);
+                alert('Error loading tutor information. Please try again later.');
+            }
+        }
+        
+        // Setup form event listeners
+        function setupFormListeners(tutorId) {
+            // Location type toggle
+            const locationTypeRadios = document.querySelectorAll('input[name="location-type"]');
+            locationTypeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const virtualDetails = document.getElementById('virtual-details');
+                    const inPersonDetails = document.getElementById('in-person-details');
+                    
+                    if (this.value === 'virtual') {
+                        virtualDetails.style.display = 'block';
+                        inPersonDetails.style.display = 'none';
+                    } else {
+                        virtualDetails.style.display = 'none';
+                        inPersonDetails.style.display = 'block';
+                    }
+                });
+            });
+            
+            // Update price when duration changes
+            const durationSelect = document.getElementById('duration');
+            durationSelect.addEventListener('change', function() {
+                const hourlyRateText = document.getElementById('tutor-rate').textContent;
+                const hourlyRate = parseInt(hourlyRateText.replace(/[^0-9]/g, ''));
+                
+                // Update duration text
+                const durationValue = parseInt(this.value);
+                let durationText;
+                if (durationValue === 60) {
+                    durationText = '1 hour';
+                } else if (durationValue === 90) {
+                    durationText = '1.5 hours';
+                } else {
+                    durationText = '2 hours';
+                }
+                document.getElementById('summary-duration').textContent = durationText;
+                
+                updateTotalPrice(hourlyRate);
+            });
+            
+            // Form submission
+            const appointmentForm = document.getElementById('appointment-form');
+            appointmentForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const subject = document.getElementById('subject').value;
+                const date = document.getElementById('date').value;
+                const time = document.getElementById('time').value;
+                const duration = document.getElementById('duration').value;
+                const locationType = document.querySelector('input[name="location-type"]:checked').value;
+                
+                let location;
+                if (locationType === 'virtual') {
+                    location = document.getElementById('meeting-platform').value;
+                } else {
+                    location = document.getElementById('meeting-location').value;
+                }
+                
+                const notes = document.getElementById('notes').value;
+                
+                // Combine date and time
+                const startTime = `${date}T${time}:00`;
+                
+                // Calculate end time
+                const endDate = new Date(startTime);
+                endDate.setMinutes(endDate.getMinutes() + parseInt(duration));
+                const endTime = endDate.toISOString();
+                
+                try {
+                    // Create appointment request
+                    const response = await Auth.authFetch('/appointments', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            tutor_id: tutorId,
+                            subject,
+                            start_time: startTime,
+                            duration: parseInt(duration),
+                            location_type: locationType,
+                            location,
+                            notes,
+                            status: 'pending'
+                        }),
+                    });
+                    
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Failed to create appointment');
+                    }
+                    
+                    // Success - redirect to dashboard
+                    alert('Appointment request submitted successfully! The tutor will be notified.');
+                    window.location.href = '../dashboard/dashboard.html';
+                } catch (error) {
+                    console.error('Error creating appointment:', error);
+                    alert('Error creating appointment: ' + error.message);
+                }
+            });
+        }
+        
+        // Update total price based on hourly rate and duration
+        function updateTotalPrice(hourlyRate) {
+            const duration = parseInt(document.getElementById('duration').value);
+            const hours = duration / 60;
+            const total = hourlyRate * hours;
+            
+            document.getElementById('summary-total').textContent = `$${total.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>

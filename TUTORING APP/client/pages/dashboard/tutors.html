@@ -111,34 +111,40 @@
     }
   }
   
-  function renderTutors(tutors) {
-    const tutorListElement = document.getElementById('tutor-list');
-    
-    if (tutors.length === 0) {
-      tutorListElement.innerHTML = `
-        <div class="no-results">
-          <p>No tutors found matching your criteria.</p>
-        </div>
-      `;
-      return;
-    }
-    
-    const tutorCards = tutors.map(tutor => {
-      return `
-        <div class="tutor-card">
-          <div class="tutor-avatar">${tutor.name.charAt(0)}</div>
-          <h3>${tutor.name}</h3>
-          <p class="tutor-school">${tutor.school}</p>
-          <div class="tutor-rating">
-            ${tutor.avgRating ? `${tutor.avgRating.toFixed(1)} ★` : 'No ratings yet'}
-          </div>
-          <a href="/dashboard/tutor-profile.html?id=${tutor.id}" class="btn-primary view-profile">View Profile</a>
-        </div>
-      `;
-    }).join('');
-    
-    tutorListElement.innerHTML = tutorCards;
+// Modified renderTutors function for tutors.html with corrected path
+function renderTutors(tutors) {
+  const tutorListElement = document.getElementById('tutor-list');
+  
+  if (tutors.length === 0) {
+    tutorListElement.innerHTML = `
+      <div class="no-results">
+        <p>No tutors found matching your criteria.</p>
+      </div>
+    `;
+    return;
   }
+  
+  const tutorCards = tutors.map(tutor => {
+    return `
+      <div class="tutor-card">
+        <div class="tutor-avatar">${tutor.name.charAt(0)}</div>
+        <h3>${tutor.name}</h3>
+        <p class="tutor-school">${tutor.school}</p>
+        <div class="tutor-rating">
+          ${tutor.avgRating ? `${tutor.avgRating.toFixed(1)} ★` : 'No ratings yet'}
+        </div>
+        <div class="tutor-actions">
+          <a href="./tutor-profile.html?id=${tutor.id}" class="btn-primary view-profile">View Profile</a>
+          <a href="./schedule-appointment.html?id=${tutor.id}" class="btn-outline">Schedule Session</a>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  tutorListElement.innerHTML = tutorCards;
+}
+  
+
 </script>
 </body>
 </html>

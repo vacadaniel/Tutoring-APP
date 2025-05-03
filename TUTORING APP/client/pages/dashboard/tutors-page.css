@@ -340,3 +340,50 @@ footer p {
     width: 100%;
   }
 }
+
+/* Add these styles to your tutors-page.css file */
+
+/* Updated tutor card styling to support two buttons */
+.tutor-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.tutor-card .btn-primary,
+.tutor-card .btn-outline {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 14px;
+}
+
+.tutor-card .btn-outline {
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.tutor-card .btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Media query for larger screens to show buttons side by side */
+@media (min-width: 400px) {
+  .tutor-actions {
+    flex-direction: row;
+  }
+  
+  .tutor-card .btn-primary,
+  .tutor-card .btn-outline {
+    width: auto;
+    flex: 1;
+  }
+}

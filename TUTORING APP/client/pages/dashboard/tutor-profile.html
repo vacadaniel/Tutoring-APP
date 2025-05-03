@@ -45,7 +45,7 @@
                 </div>
                 <div class="action-buttons">
                     <button id="message-btn" class="btn-primary">Message</button>
-                    <button id="book-btn" class="btn-outline">Book Session</button>
+                    <button id="book-btn" class="btn-outline">Schedule Session</button>
                 </div>
             </div>
 
@@ -103,228 +103,177 @@
         </div>
     </footer>
 
-<!-- Add this right before the closing </body> tag in tutor-profile.html -->
-<script src="/js/auth.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get tutor ID from URL parameter
-    const tutorId = getTutorId();
-    if (!tutorId) {
-      alert('No tutor ID specified.');
-      window.location.href = '/dashboard/tutors.html';
-      return;
-    }
-    
-    // Fetch tutor profile
-    fetchTutorProfile(tutorId);
-    
-    // Book session button
-    document.getElementById('book-btn').addEventListener('click', function() {
-      if (!Auth.isLoggedIn()) {
-        alert('Please log in to book a session with this tutor.');
-        window.location.href = '/homepage/welcome.html';
-        return;
-      }
-      
-      // Show booking modal
-      document.getElementById('booking-modal').style.display = 'block';
-    });
-    
-    // Message button
-    document.getElementById('message-btn').addEventListener('click', function() {
-      if (!Auth.isLoggedIn()) {
-        alert('Please log in to message this tutor.');
-        window.location.href = '/homepage/welcome.html';
-        return;
-      }
-      
-      messageTutor(tutorId);
-    });
-    
-    // Close modal button
-    document.querySelector('.close-button').addEventListener('click', function() {
-      document.getElementById('booking-modal').style.display = 'none';
-    });
-    
-    // Booking form submission
-    document.getElementById('booking-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      if (!Auth.isLoggedIn()) {
-        alert('Please log in to book a session.');
-        window.location.href = '/homepage/welcome.html';
-        return;
-      }
-      
-      const subject = document.getElementById('booking-subject').value;
-      const date = document.getElementById('booking-date').value;
-      const time = document.getElementById('booking-time').value;
-      const notes = document.getElementById('booking-notes').value;
-      
-      // Format datetime for API
-      const startTime = `${date}T${time}:00`;
-      
-      bookSession(tutorId, subject, startTime, notes);
-    });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-      const modal = document.getElementById('booking-modal');
-      if (event.target === modal) {
-        modal.style.display = 'none';
-      }
-    });
-  });
-  
-  // Extract tutor ID from URL
-  function getTutorId() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id');
-  }
-  
-  // Fetch tutor profile
-  async function fetchTutorProfile(tutorId) {
-    try {
-      // Public endpoint, no auth needed
-      const response = await fetch(`http://localhost:5000/users/tutors/${tutorId}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to load tutor profile');
-      }
-      
-      const tutor = await response.json();
-      
-      // Update the DOM with tutor information
-      document.title = `${tutor.name} - TutorConnect`;
-      document.getElementById('tutor-name').textContent = tutor.name;
-      document.getElementById('tutor-school').textContent = tutor.school;
-      
-      // Calculate average rating
-      let avgRating = 0;
-      if (tutor.reviews && tutor.reviews.length > 0) {
-        const sum = tutor.reviews.reduce((total, review) => total + review.rating, 0);
-        avgRating = sum / tutor.reviews.length;
-      }
-      
-      document.getElementById('avg-rating').textContent = avgRating.toFixed(1);
-      document.getElementById('total-sessions').textContent = tutor.total_sessions || 0;
-      document.getElementById('total-reviews').textContent = tutor.reviews ? tutor.reviews.length : 0;
-      document.getElementById('tutor-bio').textContent = tutor.bio || 'This tutor hasn\'t added a bio yet.';
-      document.getElementById('avatar').textContent = tutor.name.charAt(0);
-      
-      // Render reviews
-      const reviewsContainer = document.getElementById('reviews-container');
-      
-      if (!tutor.reviews || tutor.reviews.length === 0) {
-        reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
-        return;
-      }
-      
-      const reviewsHTML = tutor.reviews.map(review => {
-        const date = new Date(review.created_at).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get tutor ID from URL parameter
+            const tutorId = getTutorId();
+            if (!tutorId) {
+                alert('No tutor ID specified.');
+                window.location.href = './tutors.html';
+                return;
+            }
+            
+            // Fetch tutor profile
+            fetchTutorProfile(tutorId);
+            
+            // Book session button
+            document.getElementById('book-btn').addEventListener('click', function() {
+                const tutorId = getTutorId();
+                if (!tutorId) {
+                    alert('Error: Tutor ID not found');
+                    return;
+                }
+                
+                if (!Auth.isLoggedIn()) {
+                    alert('Please log in to schedule a session with this tutor.');
+                    window.location.href = '/homepage/welcome.html';
+                    return;
+                }
+                
+                const user = Auth.getCurrentUser();
+                if (user.role !== 'student') {
+                    alert('Only students can book sessions with tutors.');
+                    return;
+                }
+                
+                // Redirect to the appointment scheduling page
+                window.location.href = `schedule-appointment.html?id=${tutorId}`;
+            });
+            
+            // Message button
+            document.getElementById('message-btn').addEventListener('click', function() {
+                if (!Auth.isLoggedIn()) {
+                    alert('Please log in to message this tutor.');
+                    window.location.href = '/homepage/welcome.html';
+                    return;
+                }
+                
+                messageTutor(tutorId);
+            });
+            
+            // Close modal button
+            document.querySelector('.close-button').addEventListener('click', function() {
+                document.getElementById('booking-modal').style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('booking-modal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
         });
         
-        return `
-          <div class="review-item">
-            <div class="review-header">
-              <span class="reviewer-name">${review.student_name}</span>
-              <span class="review-rating">${review.rating.toFixed(1)} ★</span>
-              <span class="review-date">${date}</span>
-            </div>
-            <p class="review-comment">${review.comment}</p>
-          </div>
-        `;
-      }).join('');
-      
-      reviewsContainer.innerHTML = reviewsHTML;
-    } catch (error) {
-      console.error('Error fetching tutor profile:', error);
-      alert('Error loading tutor profile. Please try again later.');
-    }
-  }
-  
-  // Book a session with tutor
-  async function bookSession(tutorId, subject, startTime, notes) {
-    try {
-      if (!Auth.isLoggedIn()) {
-        alert('Please log in to book a session.');
-        window.location.href = '/homepage/welcome.html';
-        return;
-      }
-      
-      const response = await Auth.authFetch('/appointments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          tutor_id: tutorId,
-          subject,
-          start_time: startTime,
-          notes,
-          status: 'pending'
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to book session');
-      }
-      
-      // Close modal
-      document.getElementById('booking-modal').style.display = 'none';
-      
-      alert(`Booking request submitted!\n\nSubject: ${subject}\nDate: ${new Date(startTime).toLocaleString()}\n\nThe tutor will confirm your request soon.`);
-      
-      // If user is a student, redirect to their dashboard
-      const user = Auth.getCurrentUser();
-      if (user && user.role === 'student') {
-        window.location.href = '/dashboard/dashboard.html';
-      }
-    } catch (error) {
-      console.error('Booking error:', error);
-      alert('Failed to book session: ' + error.message);
-    }
-  }
-  
-  // Message a tutor
-  async function messageTutor(tutorId) {
-    try {
-      if (!Auth.isLoggedIn()) {
-        alert('Please log in to message this tutor.');
-        window.location.href = '/homepage/welcome.html';
-        return;
-      }
-      
-      // Create or get conversation with tutor
-      const response = await Auth.authFetch('/messages/conversations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          participant_id: tutorId
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create conversation');
-      }
-      
-      // Redirect to dashboard messages tab
-      const user = Auth.getCurrentUser();
-      if (user.role === 'student') {
-        window.location.href = '/dashboard/dashboard.html#messages';
-      } else {
-        window.location.href = '/dashboard/tutor-dashboard.html#messages';
-      }
-    } catch (error) {
-      console.error('Message error:', error);
-      alert('Failed to create conversation: ' + error.message);
-    }
-  }
-</script>
+        // Extract tutor ID from URL
+        function getTutorId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Fetch tutor profile
+        async function fetchTutorProfile(tutorId) {
+            try {
+                // This is a public endpoint, no authentication required
+                const response = await fetch(`http://localhost:5000/users/tutors/${tutorId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load tutor profile');
+                }
+                
+                const tutor = await response.json();
+                
+                // Update tutor info in UI
+                document.title = `${tutor.name} - TutorConnect`;
+                document.getElementById('tutor-name').textContent = tutor.name;
+                document.getElementById('tutor-school').textContent = tutor.school;
+                
+                // Calculate average rating
+                let avgRating = 0;
+                if (tutor.reviews && tutor.reviews.length > 0) {
+                    const sum = tutor.reviews.reduce((total, review) => total + review.rating, 0);
+                    avgRating = (sum / tutor.reviews.length).toFixed(1);
+                    document.getElementById('avg-rating').textContent = avgRating;
+                } else {
+                    document.getElementById('avg-rating').textContent = 'N/A';
+                }
+                
+                document.getElementById('total-sessions').textContent = tutor.total_sessions || 0;
+                document.getElementById('total-reviews').textContent = tutor.reviews ? tutor.reviews.length : 0;
+                document.getElementById('tutor-bio').textContent = tutor.bio || 'This tutor hasn\'t added a bio yet.';
+                document.getElementById('avatar').textContent = tutor.name.charAt(0);
+                
+                // Render reviews
+                const reviewsContainer = document.getElementById('reviews-container');
+                
+                if (!tutor.reviews || tutor.reviews.length === 0) {
+                    reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
+                    return;
+                }
+                
+                const reviewsHTML = tutor.reviews.map(review => {
+                    const date = new Date(review.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    return `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">${review.student_name}</span>
+                                <span class="review-rating">${review.rating.toFixed(1)} ★</span>
+                                <span class="review-date">${date}</span>
+                            </div>
+                            <p class="review-comment">${review.comment}</p>
+                        </div>
+                    `;
+                }).join('');
+                
+                reviewsContainer.innerHTML = reviewsHTML;
+            } catch (error) {
+                console.error('Error fetching tutor profile:', error);
+                alert('Error loading tutor profile. Please try again later.');
+            }
+        }
+        
+        // Message a tutor
+        async function messageTutor(tutorId) {
+            try {
+                if (!Auth.isLoggedIn()) {
+                    alert('Please log in to message this tutor.');
+                    window.location.href = '/homepage/welcome.html';
+                    return;
+                }
+                
+                // Create or get conversation with tutor
+                const response = await Auth.authFetch('/messages/conversations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        participant_id: tutorId
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create conversation');
+                }
+                
+                // Redirect to dashboard messages tab
+                const user = Auth.getCurrentUser();
+                if (user.role === 'student') {
+                    window.location.href = '/dashboard/dashboard.html#messages';
+                } else {
+                    window.location.href = '/dashboard/tutor-dashboard.html#messages';
+                }
+            } catch (error) {
+                console.error('Message error:', error);
+                alert('Failed to create conversation: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
