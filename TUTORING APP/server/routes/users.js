@@ -211,7 +211,7 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       
       // Get tutor info
       const [tutorRows] = await pool.query(
-        'SELECT id, name, email, school FROM users WHERE id = ? AND role = ?',
+        'SELECT id, name, email, school, bio, hourly_rate, subjects FROM users WHERE id = ? AND role = ?',
         [tutorId, 'tutor']
       );
       
@@ -220,21 +220,63 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       }
       
       const tutor = tutorRows[0];
+      console.log("Tutor from database:", tutor); // Debug log
+      
+      // Parse subjects if stored as JSON string
+      if (tutor.subjects && typeof tutor.subjects === 'string') {
+        try {
+          tutor.subjects = JSON.parse(tutor.subjects);
+        } catch (e) {
+          // If it's not valid JSON, convert to array
+          tutor.subjects = tutor.subjects.split(',').map(s => s.trim());
+        }
+      } else if (tutor.subjects && typeof tutor.subjects === 'object') {
+        // MySQL returns JSON as object already, so we're good
+        console.log("Subjects already parsed:", tutor.subjects);
+      } else {
+        // Default empty array if no subjects
+        tutor.subjects = [];
+      }
+      
+      // Make sure hourly_rate has a default value if null
+      if (tutor.hourly_rate === null) {
+        tutor.hourly_rate = 30; // Default hourly rate
+      }
       
       // Get tutor's reviews
       const [reviewsRows] = await pool.query(
-        `SELECT r.id, r.rating, r.comment, a.subject, u.name as student_name 
+        `SELECT 
+          r.id, r.rating, r.comment, r.created_at,
+          a.subject,
+          s.id as student_id, s.name as student_name
          FROM reviews r
          JOIN appointments a ON r.appointment_id = a.id
-         JOIN users u ON a.student_id = u.id
-         WHERE a.tutor_id = ?`,
+         JOIN users s ON a.student_id = s.id
+         WHERE a.tutor_id = ?
+         ORDER BY r.created_at DESC`,
         [tutorId]
       );
       
-      res.json({
+      // Get completed sessions count
+      const [sessionRows] = await pool.query(
+        `SELECT COUNT(*) as total_sessions 
+         FROM appointments 
+         WHERE tutor_id = ? AND status = 'completed'`,
+        [tutorId]
+      );
+      
+      const totalSessions = sessionRows[0]?.total_sessions || 0;
+      
+      // Final response with all data
+      const response = {
         ...tutor,
+        total_sessions: totalSessions,
         reviews: reviewsRows
-      });
+      };
+      
+      console.log("Final response:", response); // Debug log
+      
+      res.json(response);
     } catch (error) {
       console.error('Get tutor profile error:', error);
       res.status(500).json({ error: 'Server error fetching tutor profile' });

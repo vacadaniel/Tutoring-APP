@@ -6,7 +6,17 @@ module.exports = (pool) => {
   // Create a new appointment
   router.post('/', async (req, res) => {
     try {
-      const { tutor_id, subject, start_time, notes, status = 'pending' } = req.body;
+      const { 
+        tutor_id, 
+        subject, 
+        start_time, 
+        duration = 60, 
+        location_type = 'virtual', 
+        location = null,
+        notes = null, 
+        status = 'pending' 
+      } = req.body;
+      
       const student_id = req.user.id;
       
       // Validate inputs
@@ -24,11 +34,28 @@ module.exports = (pool) => {
         return res.status(404).json({ error: 'Tutor not found' });
       }
       
+      // Calculate end time
+      const startDate = new Date(start_time);
+      const endDate = new Date(startDate.getTime() + duration * 60000); // duration in minutes
+      const end_time = endDate.toISOString().slice(0, 19).replace('T', ' ');
+      
       // Create the appointment
       const [result] = await pool.query(
-        `INSERT INTO appointments (student_id, tutor_id, subject, start_time, notes, status)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [student_id, tutor_id, subject, start_time, notes, status]
+        `INSERT INTO appointments 
+           (student_id, tutor_id, subject, start_time, end_time, duration, location_type, location, notes, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          student_id, 
+          tutor_id, 
+          subject, 
+          start_time, 
+          end_time,
+          duration, 
+          location_type, 
+          location, 
+          notes, 
+          status
+        ]
       );
       
       // Get the inserted appointment
@@ -36,6 +63,10 @@ module.exports = (pool) => {
         'SELECT * FROM appointments WHERE id = ?',
         [result.insertId]
       );
+      
+      // Send notification to tutor (in a real app, you might use email, push notifications, etc.)
+      // This is just a placeholder
+      console.log(`New appointment request from student ${student_id} to tutor ${tutor_id}`);
       
       res.status(201).json(appointmentRows[0]);
     } catch (error) {
@@ -53,7 +84,8 @@ module.exports = (pool) => {
       
       let query = `
         SELECT 
-          a.id, a.subject, a.start_time, a.notes, a.status,
+          a.id, a.subject, a.start_time, a.end_time, a.duration, 
+          a.location_type, a.location, a.notes, a.status,
           s.id as student_id, s.name as student_name,
           t.id as tutor_id, t.name as tutor_name
         FROM appointments a
@@ -96,7 +128,8 @@ module.exports = (pool) => {
       
       const [rows] = await pool.query(
         `SELECT 
-          a.id, a.subject, a.start_time, a.notes, a.status,
+          a.id, a.subject, a.start_time, a.end_time, a.duration, 
+          a.location_type, a.location, a.notes, a.status,
           s.id as student_id, s.name as student_name,
           t.id as tutor_id, t.name as tutor_name
         FROM appointments a
@@ -196,7 +229,7 @@ module.exports = (pool) => {
     try {
       const appointmentId = req.params.id;
       const userId = req.user.id;
-      const { subject, start_time, notes } = req.body;
+      const { subject, start_time, duration, notes } = req.body;
       
       // Check if the appointment exists and the user has permission
       const [checkResult] = await pool.query(
@@ -222,10 +255,19 @@ module.exports = (pool) => {
       const updates = {};
       if (subject) updates.subject = subject;
       if (start_time) updates.start_time = start_time;
+      if (duration) updates.duration = duration;
       if (notes !== undefined) updates.notes = notes;
       
       if (Object.keys(updates).length === 0) {
         return res.status(400).json({ error: 'No valid fields to update' });
+      }
+      
+      // Recalculate end_time if start_time or duration has changed
+      if (start_time || duration) {
+        const startDate = new Date(start_time || appointment.start_time);
+        const durationMin = duration || appointment.duration;
+        const endDate = new Date(startDate.getTime() + durationMin * 60000);
+        updates.end_time = endDate.toISOString().slice(0, 19).replace('T', ' ');
       }
       
       // Build dynamic query

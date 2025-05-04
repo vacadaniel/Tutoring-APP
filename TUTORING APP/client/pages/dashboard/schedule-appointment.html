@@ -44,7 +44,9 @@
                         </div>
                         <div class="detail-item">
                             <span class="detail-label">Subjects:</span>
-                            <div id="tutor-subjects" class="subject-tags"></div>
+                            <div id="tutor-subjects" class="subject-tags">
+                                <span class="loading-text">Loading subjects...</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -218,6 +220,7 @@
                 }
                 
                 const tutor = await response.json();
+                console.log("Tutor data received:", tutor); // Debug log
                 
                 // Update tutor info in UI
                 document.getElementById('tutor-name').textContent = tutor.name;
@@ -234,8 +237,8 @@
                     document.getElementById('tutor-rating').textContent = 'No ratings yet';
                 }
                 
-                // Update hourly rate
-                const hourlyRate = tutor.hourly_rate || 30; // Default $30 if not set
+                // Update hourly rate - ensure it has a value
+                const hourlyRate = tutor.hourly_rate !== null && tutor.hourly_rate !== undefined ? tutor.hourly_rate : 30;
                 document.getElementById('tutor-rate').textContent = `$${hourlyRate}/hour`;
                 
                 // Update price summary
@@ -246,15 +249,20 @@
                 document.getElementById('tutor-bio-text').textContent = tutor.bio || 'No bio available.';
                 
                 // Load subjects
-                if (tutor.subjects && tutor.subjects.length > 0) {
-                    const subjectsContainer = document.getElementById('tutor-subjects');
-                    const subjectSelect = document.getElementById('subject');
-                    
-                    // Clear any existing options
-                    while (subjectSelect.options.length > 1) {
-                        subjectSelect.remove(1);
-                    }
-                    
+                const subjectsContainer = document.getElementById('tutor-subjects');
+                const subjectSelect = document.getElementById('subject');
+                
+                // Clear any existing content
+                subjectsContainer.innerHTML = '';
+                
+                // Clear any existing options except the first one
+                while (subjectSelect.options.length > 1) {
+                    subjectSelect.remove(1);
+                }
+                
+                console.log("Subjects:", tutor.subjects); // Debug log
+                
+                if (tutor.subjects && Array.isArray(tutor.subjects) && tutor.subjects.length > 0) {
                     // Add subject tags and options
                     tutor.subjects.forEach(subject => {
                         // Add to tags
@@ -270,7 +278,12 @@
                         subjectSelect.appendChild(option);
                     });
                 } else {
-                    document.getElementById('tutor-subjects').innerHTML = '<em>No subjects listed</em>';
+                    subjectsContainer.innerHTML = '<em>No subjects listed</em>';
+                    // Add a default option
+                    const option = document.createElement('option');
+                    option.value = "General Tutoring";
+                    option.textContent = "General Tutoring";
+                    subjectSelect.appendChild(option);
                 }
             } catch (error) {
                 console.error('Error fetching tutor details:', error);

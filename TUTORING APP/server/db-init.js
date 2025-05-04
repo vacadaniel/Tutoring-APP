@@ -6,7 +6,7 @@ const createConnection = async () => {
   return await mysql.createConnection({
     host: 'localhost',
     user: 'root',           // Replace with your MySQL username
-    password: 'Nelson26!',   // Replace with your MySQL password
+    password: 'password',   // Replace with your MySQL password
   });
 };
 
@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL,
     school VARCHAR(255) NOT NULL,
+    bio TEXT,
+    hourly_rate INT,
+    subjects JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )`;
 
@@ -49,6 +52,10 @@ CREATE TABLE IF NOT EXISTS appointments (
     tutor_id INT,
     subject VARCHAR(255) NOT NULL,
     start_time DATETIME NOT NULL,
+    end_time DATETIME,
+    duration INT DEFAULT 60,
+    location_type VARCHAR(50) DEFAULT 'virtual',
+    location VARCHAR(255),
     notes TEXT,
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -81,7 +88,10 @@ const demoUsers = [
     email: 'morgan@example.com',
     password: 'password123',
     role: 'tutor',
-    school: 'State University'
+    school: 'State University',
+    bio: 'I\'m a Mathematics professor with 10 years of experience. I specialize in calculus, linear algebra, and statistics. My teaching philosophy focuses on building intuition rather than memorization.',
+    hourly_rate: 50,
+    subjects: JSON.stringify(['Mathematics', 'Calculus', 'Linear Algebra', 'Statistics'])
   },
   {
     name: 'Jamie Smith',
@@ -95,14 +105,20 @@ const demoUsers = [
     email: 'riley@example.com',
     password: 'password123',
     role: 'tutor',
-    school: 'Tech College'
+    school: 'Tech College',
+    bio: 'Chemistry specialist with expertise in organic chemistry and biochemistry. I\'ve been tutoring for 8 years and have helped hundreds of students improve their grades and understanding of complex chemical concepts.',
+    hourly_rate: 45,
+    subjects: JSON.stringify(['Chemistry', 'Organic Chemistry', 'Biochemistry', 'General Science'])
   },
   {
     name: 'Jordan Lee, PhD',
     email: 'jordan@example.com',
     password: 'password123',
     role: 'tutor',
-    school: 'State University'
+    school: 'State University',
+    bio: 'Physics educator passionate about making complex concepts accessible to everyone. I focus on real-world applications and problem-solving strategies that help students excel in their coursework and beyond.',
+    hourly_rate: 55,
+    subjects: JSON.stringify(['Physics', 'Quantum Mechanics', 'Thermodynamics', 'Electromagnetism'])
   }
 ];
 
@@ -130,7 +146,7 @@ async function initializeDatabase() {
     tutorConnectConnection = await mysql.createConnection({
       host: 'localhost',
       user: 'root',           // Replace with your MySQL username
-      password: 'Nelson26!',   // Replace with your MySQL password
+      password: 'password',   // Replace with your MySQL password
       database: 'tutorconnect'
     });
     
@@ -158,11 +174,21 @@ async function initializeDatabase() {
       
       if (rows.length === 0) {
         const insertQuery = `
-          INSERT INTO users (name, email, password, role, school)
-          VALUES (?, ?, ?, ?, ?)
+          INSERT INTO users (name, email, password, role, school, bio, hourly_rate, subjects)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
-        const values = [user.name, user.email, hashedPassword, user.role, user.school];
+        const values = [
+          user.name, 
+          user.email, 
+          hashedPassword, 
+          user.role, 
+          user.school,
+          user.bio || null,
+          user.hourly_rate || null,
+          user.subjects || null
+        ];
+        
         const [result] = await tutorConnectConnection.query(insertQuery, values);
         console.log(`User ${user.name} inserted successfully with ID ${result.insertId}!`);
       } else {
