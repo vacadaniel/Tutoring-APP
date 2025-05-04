@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Profile - TutorConnect</title>
     <link rel="stylesheet" href="./tutor-profile.css">
-    <link rel="stylesheet" href="./style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 </head>
 <body>
@@ -24,7 +23,7 @@
     <main>
         <section class="tutor-profile">
             <div class="profile-header">
-                <div class="profile-avatar" id="avatar"></div>
+                <div id="avatar" class="profile-avatar">?</div>
                 <div class="profile-info">
                     <h1 id="tutor-name">Loading...</h1>
                     <p class="tutor-school" id="tutor-school"></p>
@@ -127,7 +126,7 @@
                 
                 if (!Auth.isLoggedIn()) {
                     alert('Please log in to schedule a session with this tutor.');
-                    window.location.href = '/homepage/welcome.html';
+                    window.location.href = '../homepage/welcome.html';
                     return;
                 }
                 
@@ -145,7 +144,7 @@
             document.getElementById('message-btn').addEventListener('click', function() {
                 if (!Auth.isLoggedIn()) {
                     alert('Please log in to message this tutor.');
-                    window.location.href = '/homepage/welcome.html';
+                    window.location.href = '../homepage/welcome.html';
                     return;
                 }
                 
@@ -189,6 +188,9 @@
                 document.getElementById('tutor-name').textContent = tutor.name;
                 document.getElementById('tutor-school').textContent = tutor.school;
                 
+                // Set avatar initial
+                document.getElementById('avatar').textContent = tutor.name.charAt(0);
+                
                 // Calculate average rating
                 let avgRating = 0;
                 if (tutor.reviews && tutor.reviews.length > 0) {
@@ -202,7 +204,6 @@
                 document.getElementById('total-sessions').textContent = tutor.total_sessions || 0;
                 document.getElementById('total-reviews').textContent = tutor.reviews ? tutor.reviews.length : 0;
                 document.getElementById('tutor-bio').textContent = tutor.bio || 'This tutor hasn\'t added a bio yet.';
-                document.getElementById('avatar').textContent = tutor.name.charAt(0);
                 
                 // Render reviews
                 const reviewsContainer = document.getElementById('reviews-container');
@@ -243,7 +244,7 @@
             try {
                 if (!Auth.isLoggedIn()) {
                     alert('Please log in to message this tutor.');
-                    window.location.href = '/homepage/welcome.html';
+                    window.location.href = '../homepage/welcome.html';
                     return;
                 }
                 
@@ -265,9 +266,9 @@
                 // Redirect to dashboard messages tab
                 const user = Auth.getCurrentUser();
                 if (user.role === 'student') {
-                    window.location.href = '/dashboard/dashboard.html#messages';
+                    window.location.href = './student-dashboard.html#messages';
                 } else {
-                    window.location.href = '/dashboard/tutor-dashboard.html#messages';
+                    window.location.href = './tutor-dashboard.html#messages';
                 }
             } catch (error) {
                 console.error('Message error:', error);

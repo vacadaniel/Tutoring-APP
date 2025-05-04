@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - TutorConnect</title>
+    <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <li><a href="../homepage/welcome.html">Home</a></li>
+                <li><a href="./student-dashboard.html">Dashboard</a></li>
+                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
+                <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="dashboard-header">
+            <h1>Welcome, <span id="user-name">Student</span>!</h1>
+            <p class="subtitle">Manage your tutoring sessions and messages</p>
+        </section>
+
+        <section class="dashboard-tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="appointments">My Appointments</button>
+                <button class="tab-btn" data-tab="messages">Messages</button>
+                <button class="tab-btn" data-tab="profile">My Profile</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Appointments Tab -->
+                <div class="tab-pane active" id="appointments-tab">
+                    <div class="section-header">
+                        <h2>My Appointments</h2>
+                        <a href="./tutors.html" class="btn-primary">Book New Session</a>
+                    </div>
+
+                    <div class="appointments-filter">
+                        <button class="filter-btn active" data-filter="upcoming">Upcoming</button>
+                        <button class="filter-btn" data-filter="past">Past</button>
+                        <button class="filter-btn" data-filter="pending">Pending</button>
+                    </div>
+
+                    <div id="appointments-list" class="appointments-list">
+                        <!-- Appointments will be loaded here -->
+                        <p class="loading-message">Loading your appointments...</p>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div class="tab-pane" id="messages-tab">
+                    <h2>My Messages</h2>
+                    <div class="messages-container">
+                        <div class="conversations-list">
+                            <div class="section-header">
+                                <h3>Conversations</h3>
+                            </div>
+                            <div id="conversations" class="conversation-items">
+                                <!-- Conversations will be loaded here -->
+                                <p class="loading-message">Loading conversations...</p>
+                            </div>
+                        </div>
+                        <div class="chat-container">
+                            <div id="chat-messages" class="chat-messages">
+                                <div class="empty-state">
+                                    <p>Select a conversation to view messages</p>
+                                </div>
+                            </div>
+                            <div class="chat-input">
+                                <form id="message-form" class="message-form">
+                                    <input type="text" id="message-input" class="message-input" placeholder="Type your message..." required>
+                                    <button type="submit" class="btn-primary">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div class="tab-pane" id="profile-tab">
+                    <h2>My Profile</h2>
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="profile-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="profile-email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="school">School</label>
+                                <input type="text" id="profile-school" name="school" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select id="profile-role" name="role" disabled>
+                                    <option value="student">Student</option>
+                                    <option value="tutor">Tutor</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">New Password (leave blank to keep current)</label>
+                            <input type="password" id="profile-password" name="password">
+                        </div>
+                        <button type="submit" class="btn-primary save-button">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leave Review Modal -->
+        <div id="review-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2>Leave a Review</h2>
+                <form id="review-form">
+                    <input type="hidden" id="appointment-id">
+                    <div class="input-group">
+                        <label for="rating">Rating</label>
+                        <div class="rating-input">
+                            <input type="radio" id="star5" name="rating" value="5" required>
+                            <label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1">★</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="comment">Comment</label>
+                        <textarea id="review-comment" name="comment" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Require authentication
+            if (!Auth.requireAuth()) {
+                return; // This will redirect to login page if not authenticated
+            }
+            
+            const user = Auth.getCurrentUser();
+            
+            // Verify correct dashboard
+            if (user.role !== 'student') {
+                alert('Access denied. Redirecting to tutor dashboard.');
+                window.location.href = './tutor-dashboard.html';
+                return;
+            }
+            
+            // Update username display
+            document.getElementById('user-name').textContent = user.name;
+            
+            // Load user data
+            loadUserData();
+            loadAppointments('upcoming');
+            loadConversations();
+            
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+            
+            // Appointment filters
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    loadAppointments(filter);
+                });
+            });
+            
+            // Message form
+            document.getElementById('message-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const messageInput = document.getElementById('message-input');
+                const messageText = messageInput.value.trim();
+                const conversationId = this.getAttribute('data-conversation');
+                
+                if (messageText && conversationId) {
+                    sendMessage(conversationId, messageText);
+                    messageInput.value = '';
+                }
+            });
+            
+            // Profile form
+            document.getElementById('profile-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('profile-name').value.trim();
+                const email = document.getElementById('profile-email').value.trim();
+                const school = document.getElementById('profile-school').value.trim();
+                const password = document.getElementById('profile-password').value.trim();
+                
+                updateProfile({
+                    name, 
+                    email,
+                    school,
+                    password: password || undefined
+                });
+            });
+            
+            // Review form
+            document.getElementById('review-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const appointmentId = document.getElementById('appointment-id').value;
+                const rating = document.querySelector('input[name="rating"]:checked').value;
+                const comment = document.getElementById('review-comment').value.trim();
+                
+                submitReview(appointmentId, rating, comment);
+            });
+            
+            // Close modal buttons
+            document.querySelectorAll('.close-button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to log out?')) {
+                    Auth.logoutUser();
+                }
+            });
+
+            // Check for hash in URL to switch to appropriate tab
+            const hash = window.location.hash.substr(1);
+            if (hash) {
+                const tabBtn = document.querySelector(`.tab-btn[data-tab="${hash}"]`);
+                if (tabBtn) {
+                    tabBtn.click();
+                }
+            }
+        });
+        
+        // Tab switching function
+        function switchTab(tabName) {
+            // Update active tab button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tabName) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update active tab pane
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Update URL hash without scrolling
+            const scrollPos = window.scrollY;
+            window.location.hash = tabName;
+            window.scrollTo(0, scrollPos);
+        }
+        
+        // Load user data
+        async function loadUserData() {
+            try {
+                const response = await Auth.authFetch('/users/profile');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load user data');
+                }
+                
+                const userData = await response.json();
+                
+                // Populate profile form
+                document.getElementById('profile-name').value = userData.name;
+                document.getElementById('profile-email').value = userData.email;
+                document.getElementById('profile-school').value = userData.school;
+                document.getElementById('profile-role').value = userData.role;
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                alert('Error loading your profile data. Please try again later.');
+            }
+        }
+        
+        // Load appointments
+        async function loadAppointments(filter = 'upcoming') {
+            try {
+                const appointmentsList = document.getElementById('appointments-list');
+                appointmentsList.innerHTML = '<p class="loading-message">Loading appointments...</p>';
+                
+                let status;
+                switch (filter) {
+                    case 'upcoming':
+                        status = 'confirmed';
+                        break;
+                    case 'past':
+                        status = 'completed';
+                        break;
+                    case 'pending':
+                        status = 'pending';
+                        break;
+                    default:
+                        status = '';
+                }
+                
+                const url = status ? `/appointments?status=${status}` : '/appointments';
+                const response = await Auth.authFetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load appointments');
+                }
+                
+                const appointments = await response.json();
+                
+                if (appointments.length === 0) {
+                    appointmentsList.innerHTML = `<p class="no-data-message">No ${filter} appointments found.</p>`;
+                    return;
+                }
+                
+                const appointmentsHTML = appointments.map(appointment => {
+                    const date = new Date(appointment.start_time).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    let actionsHTML = '';
+                    if (appointment.status === 'confirmed') {
+                        actionsHTML = `
+                            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+                            <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
+                        `;
+                    } else if (appointment.status === 'pending') {
+                        actionsHTML = `
+                            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+                            <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
+                        `;
+                    } else if (appointment.status === 'completed') {
+                        actionsHTML = `
+                            <button class="btn-primary btn-sm" onclick="openReviewModal('${appointment.id}')">Leave Review</button>
+                            <button class="btn-outline btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <span class="appointment-subject">${appointment.subject}</span>
+                                <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
+                            </div>
+                            <div class="appointment-info">
+                                <div class="appointment-tutor">
+                                    <strong>Tutor:</strong> ${appointment.tutor_name}
+                                </div>
+                                <div class="appointment-date">
+                                    <strong>Date:</strong> ${date}
+                                </div>
+                            </div>
+                            <div class="appointment-actions">
+                                ${actionsHTML}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                appointmentsList.innerHTML = appointmentsHTML;
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                document.getElementById('appointments-list').innerHTML = `
+                    <div class="error-message">
+                        <p>Error loading appointments. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load conversations
+        async function loadConversations() {
+            try {
+                const conversationsContainer = document.getElementById('conversations');
+                conversationsContainer.innerHTML = '<p class="loading-message">Loading conversations...</p>';
+                
+                const response = await Auth.authFetch('/messages/conversations');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load conversations');
+                }
+                
+                const conversations = await response.json();
+                
+                if (conversations.length === 0) {
+                    conversationsContainer.innerHTML = '<p class="no-data-message">No conversations found.</p>';
+                    return;
+                }
+                
+                const conversationsHTML = conversations.map(conversation => {
+                    const participant = conversation.participant;
+                    const lastMessage = conversation.lastMessage 
+                        ? conversation.lastMessage.text 
+                        : 'No messages yet';
+                    
+                    return `
+                        <div class="conversation-item" data-id="${conversation.id}">
+                            <div class="conversation-name">${participant.name}</div>
+                            <div class="conversation-preview">${lastMessage}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                conversationsContainer.innerHTML = conversationsHTML;
+                
+                // Add click event to conversation items
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        document.querySelectorAll('.conversation-item').forEach(i => {
+                            i.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        const conversationId = this.getAttribute('data-id');
+                        loadMessages(conversationId);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+                document.getElementById('conversations').innerHTML = `
+                    <div class="error-message">
+                        <p>Error loading conversations. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load messages for a conversation
+        async function loadMessages(conversationId) {
+            try {
+                const chatMessagesContainer = document.getElementById('chat-messages');
+                chatMessagesContainer.innerHTML = '<p class="loading-message">Loading messages...</p>';
+                
+                const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load messages');
+                }
+                
+                const messages = await response.json();
+                
+                if (messages.length === 0) {
+                    chatMessagesContainer.innerHTML = '<p class="no-data-message">No messages in this conversation yet.</p>';
+                    return;
+                }
+                
+                const messagesHTML = messages.map(message => {
+                    const isCurrentUser = message.sent_by_me;
+                    const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+                    const date = new Date(message.created_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    return `
+                        <div class="message ${messageClass}">
+                            <div class="message-content">${message.text}</div>
+                            <div class="message-info">
+                                ${isCurrentUser ? 'You' : message.sender.name} • ${date}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                chatMessagesContainer.innerHTML = messagesHTML;
+                
+                // Scroll to bottom
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+                
+                // Store active conversation ID
+                document.getElementById('message-form').setAttribute('data-conversation', conversationId);
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('chat-messages').innerHTML = `
+                    <div class="error-message">
+                        <p>Error loading messages. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Send a message
+        async function sendMessage(conversationId, messageText) {
+            try {
+                const response = await Auth.authFetch(`/messages/conversations/${conversationId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message_text: messageText
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+                
+                // Reload messages
+                loadMessages(conversationId);
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message');
+            }
+        }
+        
+        // Update profile
+        async function updateProfile(profileData) {
+            try {
+                const response = await Auth.authFetch('/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(profileData),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update profile');
+                }
+                
+                const updatedUser = await response.json();
+                
+                // Update localStorage with new user data (except password)
+                const currentUser = Auth.getCurrentUser();
+                const newUserData = {
+                    ...currentUser,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    school: updatedUser.school
+                };
+                localStorage.setItem('user', JSON.stringify(newUserData));
+                
+                // Update display
+                document.getElementById('user-name').textContent = updatedUser.name;
+                
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Profile update error:', error);
+                alert('Failed to update profile: ' + error.message);
+            }
+        }
+        
+        // Cancel an appointment
+        async function cancelAppointment(appointmentId) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                try {
+                    const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            status: 'canceled'
+                        }),
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to cancel appointment');
+                    }
+                    
+                    // Reload appointments
+                    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                    loadAppointments(activeFilter);
+                    
+                    alert('Appointment canceled successfully!');
+                } catch (error) {
+                    console.error('Error canceling appointment:', error);
+                    alert('Failed to cancel appointment');
+                }
+            }
+        }
+        
+        // Message a tutor
+        async function messageTutor(tutorId) {
+            try {
+                // Create or get conversation with tutor
+                const response = await Auth.authFetch('/messages/conversations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        participant_id: tutorId
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create conversation');
+                }
+                
+                const conversation = await response.json();
+                
+                // Switch to messages tab
+                switchTab('messages');
+                
+                // Load conversations and messages
+                await loadConversations();
+                
+                // Find and click the conversation
+                setTimeout(() => {
+                    const conversationItem = document.querySelector(`.conversation-item[data-id="${conversation.id}"]`);
+                    if (conversationItem) {
+                        conversationItem.click();
+                    }
+                }, 500);
+            } catch (error) {
+                console.error('Error creating conversation:', error);
+                alert('Failed to start conversation with tutor');
+            }
+        }
+        
+        // Open review modal
+        function openReviewModal(appointmentId) {
+            document.getElementById('appointment-id').value = appointmentId;
+            document.getElementById('review-form').reset();
+            document.getElementById('review-modal').style.display = 'flex';
+        }
+        
+        // Submit a review
+        async function submitReview(appointmentId, rating, comment) {
+            try {
+                const response = await Auth.authFetch('/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        appointment_id: appointmentId,
+                        rating: parseInt(rating),
+                        comment
+                    }),
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to submit review');
+                }
+                
+                // Close modal
+                document.getElementById('review-modal').style.display = 'none';
+                
+                // Reload appointments
+                loadAppointments('past');
+                
+                alert('Review submitted successfully!');
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Failed to submit review: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

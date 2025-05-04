@@ -13,7 +13,7 @@
             <div class="logo">TutorConnect</div>
             <ul>
                 <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="./dashboard.html">Dashboard</a></li>
+                <li><a href="./student-dashboard.html">Dashboard</a></li>
                 <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
                 <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
             </ul>
@@ -409,7 +409,7 @@
     // Verify correct dashboard
     if (user.role !== 'tutor') {
       alert('Access denied. Redirecting to student dashboard.');
-      window.location.href = '/dashboard/dashboard.html';
+      window.location.href = '/dashboard/student-dashboard.html';
       return;
     }
     

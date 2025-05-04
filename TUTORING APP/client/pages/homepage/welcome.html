@@ -26,8 +26,8 @@
                 <p class="tagline">Connecting students with expert tutors for academic success</p>
                 
                 <div class="cta-buttons">
-                    <a href="#" class="btn-primary">Find a Tutor</a>
-                    <a href="#" class="btn-outline">Learn More</a>
+                    <a href="../dashboard/tutors.html" class="btn-primary">Find a Tutor</a>
+                    <a href="../aboutpage/about.html" class="btn-outline">Learn More</a>
                 </div>
             </div>
             <div class="login-container">
@@ -49,7 +49,7 @@
                         <a href="#" class="forgot-password">Forgot password?</a>
                     </div>
                     <button type="submit" class="login-button">Login</button>
-                    <p class="signup-link">Don't have an account? <a href="#">Sign up</a></p>
+                    <p class="signup-link">Don't have an account? <a href="../dashboard/become-tutor.html">Sign up</a></p>
                 </form>
             </div>
         </section>
@@ -85,104 +85,301 @@
         </div>
     </footer>
     
-<script src="../js/auth.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
+    <!-- Include Auth.js BEFORE our login script -->
+    <script src="../js/auth.js"></script>
     
-    // Get elements
-    const heroSection = document.querySelector('.hero');
-    const heroContent = document.querySelector('.hero-content');
-    const loginContainer = document.querySelector('.login-container');
-    
-    // Check if user is logged in
-    if (Auth.isLoggedIn()) {
-      console.log('User is logged in');
-      const user = Auth.getCurrentUser();
-      
-      // Create profile badge HTML
-      const profileBadgeHTML = `
-        <div class="profile-badge">
-          <h2>Welcome back, ${user.name}!</h2>
-          <p class="user-info">Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
-          <p class="user-info">School: ${user.school}</p>
-          <div class="badge-actions">
-            <a href="${user.role === 'student' ? '/client/pages/dashboard/dashboard.html' : '/client/pages/dashboard/tutor-dashboard.html'}" class="btn-primary">Dashboard</a>
-            <button id="logout-btn" class="btn-outline">Logout</button>
-          </div>
-        </div>
-      `;
-      
-      // Replace login container with profile badge
-      loginContainer.innerHTML = profileBadgeHTML;
-      
-      // Add some CSS for the profile badge
-      const style = document.createElement('style');
-      style.textContent = `
-        .profile-badge {
-          background-color: rgba(0, 0, 0, 0.7);
-          border-radius: 20px;
-          padding: 30px;
-          width: 350px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-          text-align: center;
-        }
-        .user-info {
-          margin-bottom: 10px;
-          opacity: 0.8;
-        }
-        .badge-actions {
-          display: flex;
-          gap: 10px;
-          margin-top: 20px;
-          justify-content: center;
-        }
-      `;
-      document.head.appendChild(style);
-      
-      // Add logout button event listener
-      document.getElementById('logout-btn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to log out?')) {
-          Auth.logoutUser();
-          window.location.reload();
-        }
-      });
-    } else {
-      console.log('User is not logged in');
-      
-      // Make sure login form has event listener
-      const loginForm = document.getElementById('login-form');
-      if (loginForm) {
-        console.log('Adding event listener to login form');
-        
-        loginForm.addEventListener('submit', async function(e) {
-          e.preventDefault(); // Prevent default form submission
-          console.log('Login form submitted');
-          
-          const email = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
-          
-          try {
-            console.log('Attempting login with:', email);
-            const data = await Auth.loginUser({
-              email,
-              password
-            });
+    <!-- Enhanced login script with better error handling and debugging -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - Setting up login functionality');
             
-            console.log('Login successful, reloading page');
+            // Ensure auth.js is loaded
+            if (typeof Auth === 'undefined') {
+                console.error('Auth module not loaded! Check that ../js/auth.js is properly included');
+            } else {
+                console.log('Auth module loaded successfully');
+            }
             
-            // Reload the page to show the profile badge
-            window.location.reload();
-          } catch (error) {
-            console.error('Login error:', error);
-            alert('Login failed: ' + error.message);
-          }
+            // Get elements
+            const loginForm = document.getElementById('login-form');
+            const loginContainer = document.querySelector('.login-container');
+            
+            if (!loginForm) {
+                console.error('Login form not found in the document!');
+            } else {
+                console.log('Login form found, attaching event listener');
+            }
+            
+            // Check if user is already logged in
+            if (Auth && Auth.isLoggedIn()) {
+                console.log('User is already logged in');
+                displayLoggedInState();
+            } else {
+                console.log('User not logged in, showing login form');
+                setupLoginForm();
+            }
+            
+            // Set up login form event handler
+            function setupLoginForm() {
+                if (loginForm) {
+                    // For debugging: log when the form is clicked
+                    loginForm.addEventListener('click', function() {
+                        console.log('Login form clicked');
+                    });
+                    
+                    loginForm.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        console.log('Login form submitted!');
+                        
+                        const usernameInput = document.getElementById('username');
+                        const passwordInput = document.getElementById('password');
+                        
+                        if (!usernameInput || !passwordInput) {
+                            console.error('Username or password input not found!');
+                            return;
+                        }
+                        
+                        const email = usernameInput.value.trim();
+                        const password = passwordInput.value;
+                        
+                        if (!email || !password) {
+                            alert('Please enter both email and password');
+                            console.warn('Login attempted with empty fields');
+                            return;
+                        }
+                        
+                        console.log('Attempting login with email:', email);
+                        
+                        try {
+                            // Add a loading indicator
+                            const submitButton = loginForm.querySelector('.login-button');
+                            const originalButtonText = submitButton.textContent;
+                            submitButton.textContent = 'Logging in...';
+                            submitButton.disabled = true;
+                            
+                            // Try to log in
+                            const data = await Auth.loginUser({
+                                email,
+                                password
+                            });
+                            
+                            console.log('Login successful!', data);
+                            
+                            // Redirect based on user role
+                            if (data.user.role === 'student') {
+                                console.log('Redirecting to student dashboard...');
+                                window.location.href = '../dashboard/student-dashboard.html';
+                            } else if (data.user.role === 'tutor') {
+                                console.log('Redirecting to tutor dashboard...');
+                                window.location.href = '../dashboard/tutor-dashboard.html';
+                            } else {
+                                console.error('Unknown user role:', data.user.role);
+                                alert('Unknown user role. Please contact support.');
+                                
+                                // Reset button
+                                submitButton.textContent = originalButtonText;
+                                submitButton.disabled = false;
+                            }
+                        } catch (error) {
+                            console.error('Login error:', error);
+                            alert('Login failed: ' + (error.message || 'Unknown error'));
+                            
+                            // Reset button if error
+                            const submitButton = loginForm.querySelector('.login-button');
+                            if (submitButton) {
+                                submitButton.textContent = 'Login';
+                                submitButton.disabled = false;
+                            }
+                        }
+                    });
+                    
+                    console.log('Login form event listener attached');
+                }
+            }
+            
+            // Display logged in state with sleek, minimalist design
+            function displayLoggedInState() {
+                const user = Auth.getCurrentUser();
+                console.log('Displaying logged in state for user:', user);
+                
+                if (!user) {
+                    console.error('User data not found in localStorage!');
+                    // Force logout to reset the state
+                    Auth.logoutUser();
+                    window.location.reload();
+                    return;
+                }
+                
+                // Create more minimal profile display
+                const profileDisplayHTML = `
+                    <div class="welcome-card">
+                        <div class="welcome-header">
+                            <h2>Welcome, ${user.name}</h2>
+                        </div>
+                        <div class="user-status">
+                            <div class="status-pill">${user.role === 'student' ? 'Student' : 'Tutor'}</div>
+                            <div class="school-name">${user.school || 'School not specified'}</div>
+                        </div>
+                        <div class="welcome-actions">
+                            <a href="../dashboard/${user.role === 'student' ? 'student-dashboard' : 'tutor-dashboard'}.html" class="action-button primary">
+                                Dashboard
+                            </a>
+                            <button id="logout-btn" class="action-button secondary">
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Replace login container with profile display
+                if (loginContainer) {
+                    loginContainer.innerHTML = profileDisplayHTML;
+                    console.log('Updated login container with welcome card');
+                    
+                    // Add sleek styling
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .welcome-card {
+                            background-color: rgba(0, 0, 0, 0.7);
+                            border-radius: 16px;
+                            overflow: hidden;
+                            width: 100%;
+                            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                            animation: slideIn 0.3s ease-out;
+                            max-width: 350px;
+                        }
+
+                        @keyframes slideIn {
+                            from { transform: translateY(20px); opacity: 0; }
+                            to { transform: translateY(0); opacity: 1; }
+                        }
+                        
+                        .welcome-header {
+                            padding: 25px 20px;
+                            background: linear-gradient(135deg, #fe7f2d, #5c0f88);
+                            color: white;
+                            border-radius: 12px 12px 0 0;
+                        }
+                        
+                        .welcome-header h2 {
+                            margin: 0;
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                        }
+                        
+                        .user-status {
+                            padding: 20px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            background-color: rgba(0, 0, 0, 0.3);
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                        }
+                        
+                        .status-pill {
+                            background-color: #fe7f2d;
+                            color: #000;
+                            font-weight: bold;
+                            font-size: 0.9rem;
+                            padding: 4px 12px;
+                            border-radius: 50px;
+                        }
+                        
+                        .school-name {
+                            font-size: 0.9rem;
+                            opacity: 0.8;
+                        }
+                        
+                        .welcome-actions {
+                            padding: 20px;
+                            display: flex;
+                            gap: 10px;
+                        }
+                        
+                        .action-button {
+                            padding: 12px;
+                            border-radius: 8px;
+                            border: none;
+                            font-weight: 600;
+                            font-size: 1rem;
+                            flex: 1;
+                            cursor: pointer;
+                            text-align: center;
+                            text-decoration: none;
+                            transition: all 0.2s ease;
+                        }
+                        
+                        .action-button.primary {
+                            background-color: #fe7f2d;
+                            color: #000;
+                        }
+                        
+                        .action-button.primary:hover {
+                            background-color: #ff9045;
+                            transform: translateY(-2px);
+                        }
+                        
+                        .action-button.secondary {
+                            background-color: transparent;
+                            color: #fff;
+                            border: 1px solid rgba(255, 255, 255, 0.5);
+                        }
+                        
+                        .action-button.secondary:hover {
+                            background-color: rgba(255, 255, 255, 0.1);
+                            border-color: #fff;
+                            transform: translateY(-2px);
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    // Add logout button event listener
+                    const logoutBtn = document.getElementById('logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', function() {
+                            console.log('Logout button clicked');
+                            if (confirm('Are you sure you want to log out?')) {
+                                console.log('Logging out...');
+                                Auth.logoutUser();
+                                window.location.reload();
+                            }
+                        });
+                        console.log('Logout button event listener attached');
+                    } else {
+                        console.error('Logout button not found after adding to DOM!');
+                    }
+                } else {
+                    console.error('Login container not found!');
+                }
+            }
+            
+            // Update navigation links
+            updateNavigationLinks();
         });
-      } else {
-        console.error('Login form not found!');
-      }
-    }
-  });
-</script>
+        
+        // Update navigation links to point to the correct locations
+        function updateNavigationLinks() {
+            // Find a Tutor button
+            const findTutorLink = document.querySelector('.hero-content .btn-primary');
+            if (findTutorLink && findTutorLink.getAttribute('href') === '#') {
+                findTutorLink.href = '../dashboard/tutors.html';
+                console.log('Updated Find Tutor link');
+            }
+            
+            // Learn More button
+            const learnMoreLink = document.querySelector('.hero-content .btn-outline');
+            if (learnMoreLink && learnMoreLink.getAttribute('href') === '#') {
+                learnMoreLink.href = '../aboutpage/about.html';
+                console.log('Updated Learn More link');
+            }
+            
+            // Sign Up link
+            const signupLink = document.querySelector('.signup-link a');
+            if (signupLink && signupLink.getAttribute('href') === '#') {
+                signupLink.href = '../dashboard/become-tutor.html';
+                console.log('Updated Sign Up link');
+            }
+        }
+    </script>
 </body>
 </html>

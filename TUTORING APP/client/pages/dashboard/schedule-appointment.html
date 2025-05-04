@@ -12,7 +12,7 @@
             <div class="logo">TutorConnect</div>
             <ul>
                 <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="../dashboard/dashboard.html">Dashboard</a></li>
+                <li><a href="../dashboard/student-dashboard.html">Dashboard</a></li>
                 <li><a href="../dashboard/tutors.html" class="btn-secondary">Find Tutors</a></li>
                 <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
             </ul>
@@ -181,7 +181,7 @@
             const user = Auth.getCurrentUser();
             if (user.role !== 'student') {
                 alert('Only students can book appointments');
-                window.location.href = '../dashboard/dashboard.html';
+                window.location.href = '../dashboard/student-dashboard.html';
                 return;
             }
             
@@ -386,7 +386,7 @@
                     
                     // Success - redirect to dashboard
                     alert('Appointment request submitted successfully! The tutor will be notified.');
-                    window.location.href = '../dashboard/dashboard.html';
+                    window.location.href = '../dashboard/student-dashboard.html';
                 } catch (error) {
                     console.error('Error creating appointment:', error);
                     alert('Error creating appointment: ' + error.message);
