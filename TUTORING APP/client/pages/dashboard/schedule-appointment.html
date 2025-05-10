@@ -11,10 +11,7 @@
         <nav>
             <div class="logo">TutorConnect</div>
             <ul>
-                <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="../dashboard/student-dashboard.html">Dashboard</a></li>
-                <li><a href="../dashboard/tutors.html" class="btn-secondary">Find Tutors</a></li>
-                <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+                <!-- Navigation links will be inserted here by JavaScript -->
             </ul>
         </nav>
     </header>
@@ -173,6 +170,11 @@
     <script src="../js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Update navigation
+            if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+                Auth.updateNavigation();
+            }
+            
             // Require authentication and student role
             if (!Auth.requireAuth()) {
                 return; // Redirect to login page
@@ -198,15 +200,13 @@
             // Fetch tutor details
             fetchTutorDetails(tutorId);
             
+            // Set minimum date to today
+            const today = new Date();
+            const dateInput = document.getElementById('date');
+            dateInput.min = today.toISOString().split('T')[0];
+            
             // Setup form event listeners
             setupFormListeners(tutorId);
-            
-            // Logout button
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to log out?')) {
-                    Auth.logoutUser();
-                }
-            });
         });
         
         // Fetch tutor details from API
@@ -220,12 +220,11 @@
                 }
                 
                 const tutor = await response.json();
-                console.log("Tutor data received:", tutor); // Debug log
                 
                 // Update tutor info in UI
-                document.getElementById('tutor-name').textContent = tutor.name;
-                document.getElementById('tutor-school').textContent = tutor.school;
-                document.getElementById('tutor-avatar').textContent = tutor.name.charAt(0);
+                document.getElementById('tutor-name').textContent = tutor.name || 'Tutor';
+                document.getElementById('tutor-school').textContent = tutor.school || 'Unknown School';
+                document.getElementById('tutor-avatar').textContent = tutor.name ? tutor.name.charAt(0) : '?';
                 
                 // Calculate and display average rating
                 let avgRating = 0;
@@ -259,8 +258,6 @@
                 while (subjectSelect.options.length > 1) {
                     subjectSelect.remove(1);
                 }
-                
-                console.log("Subjects:", tutor.subjects); // Debug log
                 
                 if (tutor.subjects && Array.isArray(tutor.subjects) && tutor.subjects.length > 0) {
                     // Add subject tags and options
@@ -352,13 +349,17 @@
                 
                 const notes = document.getElementById('notes').value;
                 
+                // Validate date
+                const selectedDate = new Date(`${date}T${time}:00`);
+                const now = new Date();
+                
+                if (selectedDate <= now) {
+                    alert('Please select a future date and time.');
+                    return;
+                }
+                
                 // Combine date and time
                 const startTime = `${date}T${time}:00`;
-                
-                // Calculate end time
-                const endDate = new Date(startTime);
-                endDate.setMinutes(endDate.getMinutes() + parseInt(duration));
-                const endTime = endDate.toISOString();
                 
                 try {
                     // Create appointment request

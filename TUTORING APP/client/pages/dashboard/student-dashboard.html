@@ -11,10 +11,7 @@
         <nav>
             <div class="logo">TutorConnect</div>
             <ul>
-                <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="./student-dashboard.html">Dashboard</a></li>
-                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
-                <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+                <!-- Navigation links will be inserted here by JavaScript -->
             </ul>
         </nav>
     </header>
@@ -162,6 +159,11 @@
     <script src="../js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Update navigation
+            if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+                Auth.updateNavigation();
+            }
+            
             // Require authentication
             if (!Auth.requireAuth()) {
                 return; // This will redirect to login page if not authenticated
@@ -177,12 +179,13 @@
             }
             
             // Update username display
-            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-name').textContent = user.name || 'Student';
             
             // Load user data
             loadUserData();
+            
+            // Initial appointments load
             loadAppointments('upcoming');
-            loadConversations();
             
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -204,65 +207,31 @@
                     loadAppointments(filter);
                 });
             });
-
-            // Profile form
-            document.getElementById('profile-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('profile-name').value.trim();
-                const email = document.getElementById('profile-email').value.trim();
-                const school = document.getElementById('profile-school').value.trim();
-                const password = document.getElementById('profile-password').value.trim();
-                
-                updateProfile({
-                    name, 
-                    email,
-                    school,
-                    password: password || undefined
-                });
-            });
             
-            // Check message form
-            const messageForm = document.getElementById('message-form');
-            if (messageForm) {
-            console.log('Message form found. Adding submit event listener.');
-            messageForm.addEventListener('submit', function(e) {
+            // Message form
+            document.getElementById('message-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const messageInput = document.getElementById('message-input');
                 const messageText = messageInput.value.trim();
                 const conversationId = this.getAttribute('data-conversation');
                 
-                console.log('Form submitted', {
-                conversationId,
-                messageText,
-                hasConversationId: !!conversationId,
-                hasMessageText: !!messageText
-                });
-                
                 if (messageText && conversationId) {
-                sendMessage(conversationId, messageText);
-                messageInput.value = '';
-                } else {
-                console.error('Cannot send message: Missing', !messageText ? 'message text' : 'conversation ID');
-                if (!conversationId) {
-                    alert('Please select a conversation first');
-                }
+                    sendMessage(conversationId, messageText);
+                    messageInput.value = '';
                 }
             });
-            } else {
-            console.error('Message form not found!');
-            }
-
+            
+            // Profile form
+            document.getElementById('profile-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateProfile();
+            });
+            
             // Review form
             document.getElementById('review-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                const appointmentId = document.getElementById('appointment-id').value;
-                const rating = document.querySelector('input[name="rating"]:checked').value;
-                const comment = document.getElementById('review-comment').value.trim();
-                
-                submitReview(appointmentId, rating, comment);
+                submitReview();
             });
             
             // Close modal buttons
@@ -279,13 +248,6 @@
                         modal.style.display = 'none';
                     }
                 });
-            });
-            
-            // Logout button
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to log out?')) {
-                    Auth.logoutUser();
-                }
             });
 
             // Check for hash in URL to switch to appropriate tab
@@ -314,6 +276,11 @@
             });
             document.getElementById(`${tabName}-tab`).classList.add('active');
 
+            // Load tab-specific data
+            if (tabName === 'messages') {
+                loadConversations();
+            }
+
             // Update URL hash without scrolling
             const scrollPos = window.scrollY;
             window.location.hash = tabName;
@@ -332,10 +299,10 @@
                 const userData = await response.json();
                 
                 // Populate profile form
-                document.getElementById('profile-name').value = userData.name;
-                document.getElementById('profile-email').value = userData.email;
-                document.getElementById('profile-school').value = userData.school;
-                document.getElementById('profile-role').value = userData.role;
+                document.getElementById('profile-name').value = userData.name || '';
+                document.getElementById('profile-email').value = userData.email || '';
+                document.getElementById('profile-school').value = userData.school || '';
+                document.getElementById('profile-role').value = userData.role || 'student';
             } catch (error) {
                 console.error('Error loading user data:', error);
                 alert('Error loading your profile data. Please try again later.');
@@ -436,129 +403,100 @@
             }
         }
         
-        // Add proper error handling and debug logging
+        // Load conversations
         async function loadConversations() {
             try {
                 const conversationsContainer = document.getElementById('conversations');
                 conversationsContainer.innerHTML = '<p class="loading-message">Loading conversations...</p>';
                 
-                console.log('Fetching conversations...'); 
                 const response = await Auth.authFetch('/messages/conversations');
-                console.log('Response status:', response.status); 
                 
                 if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error response:', errorData); 
-                throw new Error(errorData.error || 'Failed to load conversations');
+                    throw new Error('Failed to load conversations');
                 }
                 
                 const conversations = await response.json();
-                console.log('Conversations loaded:', conversations); 
                 
                 if (conversations.length === 0) {
-                conversationsContainer.innerHTML = '<p class="no-data-message">No conversations found.</p>';
-                return;
+                    conversationsContainer.innerHTML = '<p class="no-data-message">No conversations found.</p>';
+                    return;
                 }
                 
-                // Generate HTML for conversations
                 const conversationsHTML = conversations.map(conversation => {
-                const participant = conversation.participant;
-                const lastMessage = conversation.lastMessage 
-                    ? conversation.lastMessage.text 
-                    : 'No messages yet';
-                
-                console.log('Building conversation HTML for:', participant.name);
-                
-                return `
-                    <div class="conversation-item" data-id="${conversation.id}">
-                    <div class="conversation-name">${participant.name}</div>
-                    <div class="conversation-preview">${lastMessage}</div>
-                    </div>
-                `;
+                    const participant = conversation.participant;
+                    const lastMessage = conversation.lastMessage 
+                        ? conversation.lastMessage.text 
+                        : 'No messages yet';
+                    
+                    return `
+                        <div class="conversation-item" data-id="${conversation.id}">
+                            <div class="conversation-name">${participant.name}</div>
+                            <div class="conversation-preview">${lastMessage}</div>
+                        </div>
+                    `;
                 }).join('');
                 
-                console.log('Built HTML:', conversationsHTML);
-                
-                // Update the DOM
                 conversationsContainer.innerHTML = conversationsHTML;
                 
-                // Add click events to conversation items
-                console.log('Adding click events to conversations');
+                // Add click event to conversation items
                 document.querySelectorAll('.conversation-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const conversationId = this.getAttribute('data-id');
-                    console.log('Conversation clicked:', conversationId);
-                    
-                    // Remove active class from all conversations
-                    document.querySelectorAll('.conversation-item').forEach(i => {
-                    i.classList.remove('active');
+                    item.addEventListener('click', function() {
+                        document.querySelectorAll('.conversation-item').forEach(i => {
+                            i.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        const conversationId = this.getAttribute('data-id');
+                        loadMessages(conversationId);
                     });
-                    
-                    // Add active class to clicked conversation
-                    this.classList.add('active');
-                    
-                    // Load messages for this conversation
-                    loadMessages(conversationId);
                 });
-                });
-                
-                console.log('Conversations loaded and click events attached');
             } catch (error) {
                 console.error('Error loading conversations:', error);
                 document.getElementById('conversations').innerHTML = `
-                <div class="error-message">
-                    <p>Error loading conversations: ${error.message}</p>
-                    <button class="btn-outline btn-sm" onclick="loadConversations()">Try Again</button>
-                </div>
+                    <div class="error-message">
+                        <p>Error loading conversations. Please try again later.</p>
+                    </div>
                 `;
             }
-            }
-                
+        }
+        
         // Load messages for a conversation
         async function loadMessages(conversationId) {
             try {
-                console.log('Loading messages for conversation:', conversationId);
                 const chatMessagesContainer = document.getElementById('chat-messages');
                 chatMessagesContainer.innerHTML = '<p class="loading-message">Loading messages...</p>';
                 
                 const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
-                console.log('Load messages response status:', response.status);
                 
                 if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error loading messages:', errorData);
-                throw new Error(errorData.error || 'Failed to load messages');
+                    throw new Error('Failed to load messages');
                 }
                 
                 const messages = await response.json();
-                console.log('Messages loaded:', messages);
                 
                 if (messages.length === 0) {
-                chatMessagesContainer.innerHTML = '<div class="empty-state"><p>No messages in this conversation yet. Send a message to start chatting!</p></div>';
-                
-                // Store active conversation ID even if no messages
-                document.getElementById('message-form').setAttribute('data-conversation', conversationId);
-                return;
+                    chatMessagesContainer.innerHTML = '<p class="no-data-message">No messages in this conversation yet.</p>';
+                    return;
                 }
                 
                 const messagesHTML = messages.map(message => {
-                const isCurrentUser = message.sent_by_me;
-                const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
-                const date = new Date(message.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                return `
-                    <div class="message ${messageClass}">
-                    <div class="message-content">${message.text}</div>
-                    <div class="message-info">
-                        ${isCurrentUser ? 'You' : message.sender.name} • ${date}
-                    </div>
-                    </div>
-                `;
+                    const isCurrentUser = message.sent_by_me;
+                    const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+                    const date = new Date(message.created_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    return `
+                        <div class="message ${messageClass}">
+                            <div class="message-content">${message.text}</div>
+                            <div class="message-info">
+                                ${isCurrentUser ? 'You' : message.sender.name} • ${date}
+                            </div>
+                        </div>
+                    `;
                 }).join('');
                 
                 chatMessagesContainer.innerHTML = messagesHTML;
@@ -568,98 +506,129 @@
                 
                 // Store active conversation ID
                 document.getElementById('message-form').setAttribute('data-conversation', conversationId);
-                console.log('Set active conversation ID:', conversationId);
             } catch (error) {
                 console.error('Error loading messages:', error);
                 document.getElementById('chat-messages').innerHTML = `
-                <div class="error-message">
-                    <p>Error loading messages: ${error.message}</p>
-                    <button class="btn-outline btn-sm" onclick="loadMessages('${conversationId}')">Try Again</button>
-                </div>
+                    <div class="error-message">
+                        <p>Error loading messages. Please try again later.</p>
+                    </div>
                 `;
             }
-            }
+        }
         
         // Send a message
         async function sendMessage(conversationId, messageText) {
             try {
-                console.log('Sending message to conversation:', conversationId, 'Text:', messageText);
-                
-                // Show loading indicator
-                const sendButton = document.querySelector('#message-form button[type="submit"]');
-                const originalButtonText = sendButton.textContent;
-                sendButton.disabled = true;
-                sendButton.textContent = 'Sending...';
-                
                 const response = await Auth.authFetch(`/messages/conversations/${conversationId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message_text: messageText
-                }),
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message_text: messageText
+                    }),
                 });
                 
-                // Reset button
-                sendButton.disabled = false;
-                sendButton.textContent = originalButtonText;
-                
-                console.log('Send message response status:', response.status);
-                
                 if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error sending message:', errorData);
-                throw new Error(errorData.error || 'Failed to send message');
+                    throw new Error('Failed to send message');
                 }
                 
-                const result = await response.json();
-                console.log('Message sent successfully:', result);
-                
-                // Reload messages to show the new message
-                await loadMessages(conversationId);
+                // Reload messages
+                loadMessages(conversationId);
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert(`Failed to send message: ${error.message}`);
+                alert('Failed to send message: ' + error.message);
             }
+        }
+        
+        // Update profile
+        async function updateProfile() {
+            try {
+                const name = document.getElementById('profile-name').value.trim();
+                const email = document.getElementById('profile-email').value.trim();
+                const school = document.getElementById('profile-school').value.trim();
+                const password = document.getElementById('profile-password').value;
+                
+                const profileData = {
+                    name,
+                    email,
+                    school
+                };
+                
+                if (password) {
+                    profileData.password = password;
+                }
+                
+                const response = await Auth.authFetch('/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(profileData),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update profile');
+                }
+                
+                const updatedUser = await response.json();
+                
+                // Update localStorage with new user data (except password)
+                const currentUser = Auth.getCurrentUser();
+                const newUserData = {
+                    ...currentUser,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    school: updatedUser.school
+                };
+                localStorage.setItem('user', JSON.stringify(newUserData));
+                
+                // Update display
+                document.getElementById('user-name').textContent = updatedUser.name;
+                
+                // Clear password field
+                document.getElementById('profile-password').value = '';
+                
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Profile update error:', error);
+                alert('Failed to update profile: ' + error.message);
             }
+        }
         
         // Cancel an appointment
-        async function cancelAppointment(appointmentId) {
+        function cancelAppointment(appointmentId) {
             if (confirm('Are you sure you want to cancel this appointment?')) {
-                try {
-                    const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            status: 'canceled'
-                        }),
-                    });
-                    
+                Auth.authFetch(`/appointments/${appointmentId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        status: 'canceled'
+                    }),
+                })
+                .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to cancel appointment');
                     }
                     
+                    alert('Appointment canceled successfully!');
+                    
                     // Reload appointments
                     const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
                     loadAppointments(activeFilter);
-                    
-                    alert('Appointment canceled successfully!');
-                } catch (error) {
+                })
+                .catch(error => {
                     console.error('Error canceling appointment:', error);
-                    alert('Failed to cancel appointment');
-                }
+                    alert('Failed to cancel appointment: ' + error.message);
+                });
             }
         }
         
-        async function messageTutor(tutorId) {
-            try {
-                console.log(`Creating conversation with tutor ${tutorId}`);
-                
-                // Create or get conversation with tutor
-                const response = await Auth.authFetch('/messages/conversations', {
+        // Message a tutor
+        function messageTutor(tutorId) {
+            Auth.authFetch('/messages/conversations', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -667,42 +636,31 @@
                 body: JSON.stringify({
                     participant_id: tutorId
                 }),
-                });
-                
-                console.log("Conversation API Response status:", response.status);
-                
+            })
+            .then(response => {
                 if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create conversation');
+                    throw new Error('Failed to create conversation');
                 }
-                
-                const conversation = await response.json();
-                console.log("Conversation created/retrieved:", conversation);
-                
+                return response.json();
+            })
+            .then(conversation => {
                 // Switch to messages tab
                 switchTab('messages');
                 
-                // Wait for conversations to load in the messages tab
-                console.log("Loading conversations...");
-                await loadConversations();
-                
-                // Find and click the relevant conversation
-                console.log("Finding conversation in UI...");
+                // The messages tab should load conversations on activation
+                // Then select the conversation with the tutor
                 setTimeout(() => {
-                const conversationItem = document.querySelector(`.conversation-item[data-id="${conversation.id}"]`);
-                if (conversationItem) {
-                    console.log("Found conversation, clicking it");
-                    conversationItem.click();
-                } else {
-                    console.error(`Could not find conversation with ID: ${conversation.id}`);
-                    alert('Conversation created. Please select it from the list.');
-                }
-                }, 1000); // Give it time to ensure the conversations list is fully rendered
-            } catch (error) {
+                    const conversationItem = document.querySelector(`.conversation-item[data-id="${conversation.id}"]`);
+                    if (conversationItem) {
+                        conversationItem.click();
+                    }
+                }, 500);
+            })
+            .catch(error => {
                 console.error('Error creating conversation:', error);
-                alert('Failed to start conversation: ' + error.message);
-            }
-            }
+                alert('Failed to create conversation: ' + error.message);
+            });
+        }
         
         // Open review modal
         function openReviewModal(appointmentId) {
@@ -712,25 +670,31 @@
         }
         
         // Submit a review
-        async function submitReview(appointmentId, rating, comment) {
-            try {
-                const response = await Auth.authFetch('/reviews', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        appointment_id: appointmentId,
-                        rating: parseInt(rating),
-                        comment
-                    }),
-                });
-                
+        function submitReview() {
+            const appointmentId = document.getElementById('appointment-id').value;
+            const rating = document.querySelector('input[name="rating"]:checked').value;
+            const comment = document.getElementById('review-comment').value.trim();
+            
+            Auth.authFetch('/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    appointment_id: appointmentId,
+                    rating: parseInt(rating),
+                    comment
+                }),
+            })
+            .then(response => {
                 if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.error || 'Failed to submit review');
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Failed to submit review');
+                    });
                 }
-                
+                return response.json();
+            })
+            .then(() => {
                 // Close modal
                 document.getElementById('review-modal').style.display = 'none';
                 
@@ -738,10 +702,11 @@
                 loadAppointments('past');
                 
                 alert('Review submitted successfully!');
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error submitting review:', error);
                 alert('Failed to submit review: ' + error.message);
-            }
+            });
         }
     </script>
 </body>

@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Become a Tutor - TutorConnect</title>
     <link rel="stylesheet" href="./tutor-signup.css">
-  
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">TutorConnect</div>
             <ul>
-                <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="../aboutpage/about.html">About</a></li>
-                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
-                <li><a href="./become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+                <!-- Navigation links will be inserted here by JavaScript -->
             </ul>
         </nav>
     </header>
@@ -64,7 +60,7 @@
                         </div>
                         <div class="form-group">
                             <label for="hourly-rate">Hourly Rate ($)</label>
-                            <input type="number" id="hourly-rate" name="hourly-rate" min="10" step="5" required>
+                            <input type="number" id="hourly-rate" name="hourly-rate" min="10" step="5" value="30" required>
                         </div>
                     </div>
                     
@@ -135,96 +131,102 @@
         </div>
     </footer>
 
-
-    <script src="/js/auth.js"></script>
+    <script src="../js/auth.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const subjectInput = document.getElementById('new-subject');
-        const subjectTags = document.getElementById('subject-tags');
-        const subjects = new Set();
-        
-        // Add subject tag when Enter is pressed
-        subjectInput.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            const subject = this.value.trim();
-            
-            if (subject && !subjects.has(subject)) {
-              addSubjectTag(subject);
-              this.value = '';
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update navigation
+            if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+                Auth.updateNavigation();
             }
-          }
+            
+            const subjectInput = document.getElementById('new-subject');
+            const subjectTags = document.getElementById('subject-tags');
+            const subjects = new Set();
+            
+            // Add subject tag when Enter is pressed
+            subjectInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const subject = this.value.trim();
+                    
+                    if (subject && !subjects.has(subject)) {
+                        addSubjectTag(subject);
+                        this.value = '';
+                    }
+                }
+            });
+            
+            // Function to add a subject tag
+            function addSubjectTag(subject) {
+                subjects.add(subject);
+                
+                const tag = document.createElement('div');
+                tag.className = 'subject-tag';
+                tag.innerHTML = `
+                    ${subject}
+                    <span class="remove-tag" data-subject="${subject}">×</span>
+                `;
+                
+                subjectTags.appendChild(tag);
+                
+                // Add click event to remove button
+                tag.querySelector('.remove-tag').addEventListener('click', function() {
+                    const subject = this.getAttribute('data-subject');
+                    subjects.delete(subject);
+                    this.parentElement.remove();
+                });
+            }
+            
+            // Form submission
+            document.getElementById('tutor-signup-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const school = document.getElementById('school').value;
+                const hourlyRate = document.getElementById('hourly-rate').value;
+                const bio = document.getElementById('bio').value.trim();
+                
+                // Basic validation
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                if (subjects.size === 0) {
+                    alert('Please add at least one subject you can teach.');
+                    return;
+                }
+                
+                try {
+                    // Prepare data for registration
+                    const userData = {
+                        name,
+                        email,
+                        password,
+                        role: 'tutor',
+                        school,
+                        hourly_rate: parseInt(hourlyRate),
+                        bio,
+                        subjects: Array.from(subjects)
+                    };
+                    
+                    // Register as tutor
+                    const result = await Auth.registerUser(userData);
+                    
+                    alert(`Thank you for signing up as a tutor, ${name}! Your account has been created successfully.`);
+                    
+                    // Redirect to tutor dashboard
+                    window.location.href = '/dashboard/tutor-dashboard.html';
+                } catch (error) {
+                    alert('Registration failed: ' + error.message);
+                    console.error('Registration error:', error);
+                }
+            });
         });
-        
-        // Function to add a subject tag
-        function addSubjectTag(subject) {
-          subjects.add(subject);
-          
-          const tag = document.createElement('div');
-          tag.className = 'subject-tag';
-          tag.innerHTML = `
-              ${subject}
-              <span class="remove-tag" data-subject="${subject}">×</span>
-          `;
-          
-          subjectTags.appendChild(tag);
-          
-          // Add click event to remove button
-          tag.querySelector('.remove-tag').addEventListener('click', function() {
-            const subject = this.getAttribute('data-subject');
-            subjects.delete(subject);
-            this.parentElement.remove();
-          });
-        }
-        
-        // Form submission
-        document.getElementById('tutor-signup-form').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          
-          // Get form values
-          const name = document.getElementById('name').value.trim();
-          const email = document.getElementById('email').value.trim();
-          const password = document.getElementById('password').value;
-          const confirmPassword = document.getElementById('confirm-password').value;
-          const school = document.getElementById('school').value;
-          const hourlyRate = document.getElementById('hourly-rate').value;
-          const bio = document.getElementById('bio').value.trim();
-          
-          // Basic validation
-          if (password !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
-          }
-          
-          if (subjects.size === 0) {
-            alert('Please add at least one subject you can teach.');
-            return;
-          }
-          
-          try {
-            // Register as tutor
-            const userData = {
-              name,
-              email,
-              password,
-              role: 'tutor',
-              school,
-              hourlyRate,
-              bio,
-              subjects: Array.from(subjects)
-            };
-            
-            await Auth.registerUser(userData);
-            
-            alert(`Thank you for signing up as a tutor, ${name}! Your account will be reviewed shortly.`);
-            
-            // Redirect to tutor dashboard
-            window.location.href = '/dashboard/tutor-dashboard.html';
-          } catch (error) {
-            alert('Registration failed: ' + error.message);
-          }
-        });
-      });
     </script>
 </body>
 </html>

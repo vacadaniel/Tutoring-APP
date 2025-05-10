@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Profile - TutorConnect</title>
     <link rel="stylesheet" href="./tutor-profile.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">TutorConnect</div>
             <ul>
-                <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="../aboutpage/about.html">About</a></li>
-                <li><a href="./tutors.html" class="btn-secondary">Find Tutors</a></li>
-                <li><a href="./become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+                <!-- Navigation links will be inserted here by JavaScript -->
             </ul>
         </nav>
     </header>
@@ -52,7 +48,7 @@
                 <div class="profile-section">
                     <h2>About Me</h2>
                     <p id="tutor-bio">
-                        This tutor hasn't added a bio yet.
+                        Loading tutor bio...
                     </p>
                 </div>
 
@@ -64,33 +60,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Booking Modal (Hidden by default) -->
-        <div id="booking-modal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <h2>Book a Session</h2>
-                <form id="booking-form">
-                    <div class="input-group">
-                        <label for="subject">Subject</label>
-                        <input type="text" id="booking-subject" name="subject" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="date">Date</label>
-                        <input type="date" id="booking-date" name="date" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="time">Time</label>
-                        <input type="time" id="booking-time" name="time" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="notes">Notes (Optional)</label>
-                        <textarea id="booking-notes" name="notes" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary">Request Session</button>
-                </form>
-            </div>
-        </div>
     </main>
 
     <footer>
@@ -105,6 +74,11 @@
     <script src="../js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Update navigation
+            if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+                Auth.updateNavigation();
+            }
+            
             // Get tutor ID from URL parameter
             const tutorId = getTutorId();
             if (!tutorId) {
@@ -150,19 +124,6 @@
                 
                 messageTutor(tutorId);
             });
-            
-            // Close modal button
-            document.querySelector('.close-button').addEventListener('click', function() {
-                document.getElementById('booking-modal').style.display = 'none';
-            });
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('booking-modal');
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
         });
         
         // Extract tutor ID from URL
@@ -185,11 +146,11 @@
                 
                 // Update tutor info in UI
                 document.title = `${tutor.name} - TutorConnect`;
-                document.getElementById('tutor-name').textContent = tutor.name;
-                document.getElementById('tutor-school').textContent = tutor.school;
+                document.getElementById('tutor-name').textContent = tutor.name || 'Tutor';
+                document.getElementById('tutor-school').textContent = tutor.school || 'No school specified';
                 
                 // Set avatar initial
-                document.getElementById('avatar').textContent = tutor.name.charAt(0);
+                document.getElementById('avatar').textContent = tutor.name ? tutor.name.charAt(0) : '?';
                 
                 // Calculate average rating
                 let avgRating = 0;
@@ -223,11 +184,11 @@
                     return `
                         <div class="review-item">
                             <div class="review-header">
-                                <span class="reviewer-name">${review.student_name}</span>
+                                <span class="reviewer-name">${review.student_name || 'Anonymous'}</span>
                                 <span class="review-rating">${review.rating.toFixed(1)} ★</span>
                                 <span class="review-date">${date}</span>
                             </div>
-                            <p class="review-comment">${review.comment}</p>
+                            <p class="review-comment">${review.comment || 'No comment provided.'}</p>
                         </div>
                     `;
                 }).join('');

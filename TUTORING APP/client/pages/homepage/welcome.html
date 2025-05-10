@@ -11,10 +11,7 @@
         <nav>
             <div class="logo">TutorConnect</div>
             <ul>
-                <li><a href="../homepage/welcome.html">Home</a></li>
-                <li><a href="../aboutpage/about.html">About</a></li>
-                <li><a href="../dashboard/tutors.html" class="btn-secondary">Find Tutors</a></li>
-                <li><a href="../dashboard/become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+                <!-- Navigation links will be inserted here by JavaScript -->
             </ul>
         </nav>
     </header>
@@ -381,5 +378,17 @@
             }
         }
     </script>
+
+<script>
+    // Update navigation based on authentication status
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+        Auth.updateNavigation();
+      } else {
+        console.warn('Auth module not loaded or updateNavigation not available');
+      }
+    });
+  </script>
+
 </body>
 </html>

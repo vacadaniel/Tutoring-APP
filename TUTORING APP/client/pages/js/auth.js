@@ -169,4 +169,57 @@ window.Auth = {
   requireAuth
 };
 
+// Function to update navigation based on authentication status
+function updateNavigation() {
+  const isLoggedIn = Auth.isLoggedIn();
+  const navElement = document.querySelector('nav ul');
+  
+  if (!navElement) {
+    console.warn('Navigation element not found');
+    return;
+  }
+  
+  let navHTML = '';
+  
+  if (isLoggedIn) {
+    const user = Auth.getCurrentUser();
+    const isDashboard = window.location.href.includes('dashboard');
+    const dashboardPath = user.role === 'student' ? 
+      '../dashboard/student-dashboard.html' : 
+      '../dashboard/tutor-dashboard.html';
+    
+    navHTML = `
+      <li><a href="../homepage/welcome.html">Home</a></li>
+      <li><a href="${dashboardPath}">Dashboard</a></li>
+      <li><a href="../dashboard/tutors.html">Find Tutors</a></li>
+      <li><a href="#" class="btn-secondary" id="logout-btn">Logout</a></li>
+    `;
+  } else {
+    navHTML = `
+      <li><a href="../homepage/welcome.html">Home</a></li>
+      <li><a href="../aboutpage/about.html">About</a></li>
+      <li><a href="../dashboard/tutors.html">Find Tutors</a></li>
+      <li><a href="../dashboard/become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+    `;
+  }
+  
+  navElement.innerHTML = navHTML;
+  
+  // If user is logged in, attach logout event handler
+  if (isLoggedIn) {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to log out?')) {
+          Auth.logoutUser();
+        }
+      });
+    }
+  }
+}
+
+// Export the function with other Auth functions
+window.Auth.updateNavigation = updateNavigation;
+
 console.log('Auth module initialized');
