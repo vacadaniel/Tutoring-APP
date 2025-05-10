@@ -202,6 +202,15 @@
                     return;
                 }
                 
+                // Add debug logging
+                console.log('Form data collected:');
+                console.log('- Name:', name);
+                console.log('- Email:', email);
+                console.log('- School:', school);
+                console.log('- Hourly Rate:', hourlyRate);
+                console.log('- Bio:', bio);
+                console.log('- Subjects:', Array.from(subjects));
+                
                 try {
                     // Prepare data for registration
                     const userData = {
@@ -215,13 +224,17 @@
                         subjects: Array.from(subjects)
                     };
                     
+                    console.log('Sending registration data:', JSON.stringify(userData));
+                    
                     // Register as tutor
                     const result = await Auth.registerUser(userData);
                     
+                    // Check what data was returned
+                    console.log('Registration result:', result);
+                    
                     alert(`Thank you for signing up as a tutor, ${name}! Your account has been created successfully.`);
                     
-                    // Redirect to tutor dashboard
-                    console.log('Redirecting to tutor dashboard...');
+                    // Use correct relative path
                     window.location.href = '../dashboard/tutor-dashboard.html';
                 } catch (error) {
                     alert('Registration failed: ' + error.message);

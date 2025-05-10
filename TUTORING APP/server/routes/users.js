@@ -6,7 +6,14 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
   // Register a new user
   router.post('/register', async (req, res) => {
     try {
-      const { name, email, password, role, school } = req.body;
+      const { name, email, password, role, school, bio, hourly_rate, subjects } = req.body;
+      
+      // Log what we received
+      console.log('Registration request received:');
+      console.log('- Role:', role);
+      console.log('- Bio:', bio);
+      console.log('- Hourly rate:', hourly_rate);
+      console.log('- Subjects:', subjects);
       
       // Validate inputs
       if (!name || !email || !password || !role || !school) {
@@ -31,23 +38,67 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
       
-      // Insert new user
-      const [result] = await pool.query(
-        'INSERT INTO users (name, email, password, role, school) VALUES (?, ?, ?, ?, ?)',
-        [name, email, hashedPassword, role, school]
-      );
+      // Prepare the query based on role
+      let query, values;
       
-      // Get the inserted user
+      if (role === 'tutor') {
+        // For tutors, include the additional fields
+        query = `
+          INSERT INTO users 
+            (name, email, password, role, school, bio, hourly_rate, subjects)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        
+        // Ensure subjects is properly formatted as JSON
+        const subjectsJson = Array.isArray(subjects) ? JSON.stringify(subjects) : null;
+        
+        values = [
+          name, 
+          email, 
+          hashedPassword, 
+          role, 
+          school,
+          bio || null,
+          hourly_rate || null,
+          subjectsJson
+        ];
+      } else {
+        // For students, use simpler query
+        query = `
+          INSERT INTO users 
+            (name, email, password, role, school)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+        
+        values = [name, email, hashedPassword, role, school];
+      }
+      
+      // Log the query we're about to execute
+      console.log('Executing insert query:', query);
+      console.log('With values:', values);
+      
+      // Insert new user
+      const [result] = await pool.query(query, values);
+      
+      // Get the inserted user (include all relevant fields)
       const [userRows] = await pool.query(
-        'SELECT id, name, email, role, school FROM users WHERE id = ?',
+        'SELECT id, name, email, role, school, bio, hourly_rate, subjects FROM users WHERE id = ?',
         [result.insertId]
       );
       
       const user = userRows[0];
       
+      // Log what was retrieved
+      console.log('User inserted with data:', user);
+      
       // Generate JWT token
       const token = jwt.sign(
-        { id: user.id, role: user.role, name: user.name, email: user.email },
+        { 
+          id: user.id, 
+          role: user.role, 
+          name: user.name, 
+          email: user.email 
+        },
         JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -59,7 +110,10 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
           name: user.name,
           email: user.email,
           role: user.role,
-          school: user.school
+          school: user.school,
+          bio: user.bio,
+          hourly_rate: user.hourly_rate,
+          subjects: user.subjects
         }
       });
     } catch (error) {

@@ -274,52 +274,70 @@
         
         // Load profile data
         async function loadProfileData() {
-            try {
-                const response = await Auth.authFetch('/users/profile');
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load profile data');
-                }
-                
-                const userData = await response.json();
-                
-                // Populate profile form
-                document.getElementById('profile-name').value = userData.name || '';
-                document.getElementById('profile-email').value = userData.email || '';
-                document.getElementById('profile-school').value = userData.school || '';
-                document.getElementById('hourly-rate').value = userData.hourly_rate || 30;
-                document.getElementById('bio').value = userData.bio || '';
-                
-                // Load subjects
-                const subjectTagsContainer = document.getElementById('subject-tags');
-                subjectTagsContainer.innerHTML = '';
-                
-                if (userData.subjects && Array.isArray(userData.subjects)) {
-                    userData.subjects.forEach(subject => {
-                        addSubjectTag(subject);
-                    });
-                }
-                
-                // Set up subject input handler
-                const newSubjectInput = document.getElementById('new-subject');
-                newSubjectInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const subject = this.value.trim();
-                        if (subject) {
-                            addSubjectTag(subject);
-                            this.value = '';
-                        }
-                    }
-                });
-                
-                // Set up profile form submission
-                document.getElementById('profile-form').addEventListener('submit', updateProfile);
-                
-            } catch (error) {
-                console.error('Error loading profile data:', error);
-                alert('Error loading your profile data. Please try again later.');
+          try {
+            console.log('Loading profile data...');
+            const response = await Auth.authFetch('/users/profile');
+            
+            if (!response.ok) {
+              throw new Error('Failed to load profile data');
             }
+            
+            const userData = await response.json();
+            console.log('Profile data loaded:', userData);
+            
+            // Populate profile form
+            document.getElementById('profile-name').value = userData.name || '';
+            document.getElementById('profile-email').value = userData.email || '';
+            document.getElementById('profile-school').value = userData.school || '';
+            document.getElementById('hourly-rate').value = userData.hourly_rate || 30;
+            document.getElementById('bio').value = userData.bio || '';
+            
+            // Load subjects
+            const subjectTagsContainer = document.getElementById('subject-tags');
+            subjectTagsContainer.innerHTML = '';
+            
+            if (userData.subjects) {
+              let subjects = [];
+              
+              try {
+                if (typeof userData.subjects === 'string') {
+                  subjects = JSON.parse(userData.subjects);
+                } else {
+                  subjects = userData.subjects;
+                }
+                
+                console.log('Parsed subjects:', subjects);
+                
+                if (Array.isArray(subjects)) {
+                  subjects.forEach(subject => {
+                    addSubjectTag(subject);
+                  });
+                }
+              } catch (e) {
+                console.error('Error parsing subjects:', e);
+              }
+            }
+            
+            // Set up subject input handler
+            const newSubjectInput = document.getElementById('new-subject');
+            newSubjectInput.addEventListener('keypress', function(e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                const subject = this.value.trim();
+                if (subject) {
+                  addSubjectTag(subject);
+                  this.value = '';
+                }
+              }
+            });
+            
+            // Set up profile form submission
+            document.getElementById('profile-form').addEventListener('submit', updateProfile);
+            
+          } catch (error) {
+            console.error('Error loading profile data:', error);
+            alert('Error loading your profile data. Please try again later.');
+          }
         }
         
         // Add subject tag to the DOM

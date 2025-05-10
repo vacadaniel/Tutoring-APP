@@ -73,13 +73,17 @@ async function loginUser(credentials) {
 // Function to get the current authenticated user
 function getCurrentUser() {
   const userJson = localStorage.getItem('user');
+  console.log('Raw user data from localStorage:', userJson);
+  
   if (!userJson) {
     console.log('No user found in localStorage');
     return null;
   }
   
   try {
-    return JSON.parse(userJson);
+    const userData = JSON.parse(userJson);
+    console.log('Parsed user data:', userData);
+    return userData;
   } catch (error) {
     console.error('Error parsing user JSON:', error);
     return null;
