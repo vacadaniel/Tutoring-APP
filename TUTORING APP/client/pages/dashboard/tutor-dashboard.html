@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Dashboard - TutorConnect</title>
-    <link rel="stylesheet" href="./tutor-dashbaord.css">
+    <link rel="stylesheet" href="./tutor-dashboard.css">
 
 </head>
 <body>
@@ -399,43 +399,48 @@
 <script src="../js/auth.js"></script>
 <script>
   function switchToTab(tabName) {
-    console.log("Switching to tab:", tabName);
+  console.log("Switching to tab:", tabName);
+  
+  // Hide all tab panes
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('active');
+  });
+  
+  // Show selected tab pane
+  const selectedPane = document.getElementById(`${tabName}-tab`);
+  if (selectedPane) selectedPane.classList.add('active');
+  
+  // Deactivate all tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Activate selected tab button
+  const selectedBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+  if (selectedBtn) selectedBtn.classList.add('active');
+  
+  // Special handling for tabs
+  if (tabName === 'appointments') {
+    // Your existing appointments tab code
+    console.log("Loading appointments tab content");
+    const activeFilter = document.querySelector('.filter-btn.active') || 
+                        document.querySelector('.filter-btn[data-filter="upcoming"]');
     
-    // Hide all tab panes
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.classList.remove('active');
-    });
-    
-    // Show selected tab pane
-    const selectedPane = document.getElementById(`${tabName}-tab`);
-    if (selectedPane) selectedPane.classList.add('active');
-    
-    // Deactivate all tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Activate selected tab button
-    const selectedBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-    if (selectedBtn) selectedBtn.classList.add('active');
-    
-    // Special handling for appointments tab
-    if (tabName === 'appointments') {
-        console.log("Loading appointments tab content");
-        // Get the currently active filter or default to 'upcoming'
-        const activeFilter = document.querySelector('.filter-btn.active') || 
-                            document.querySelector('.filter-btn[data-filter="upcoming"]');
-        
-        if (activeFilter) {
-            console.log("Active filter:", activeFilter.getAttribute('data-filter'));
-            // Use setTimeout to ensure the tab is visible first
-            setTimeout(() => {
-                filterAppointments(activeFilter.getAttribute('data-filter'), activeFilter);
-            }, 100);
-        } else {
-            console.error("No active filter found");
-        }
+    if (activeFilter) {
+      console.log("Active filter:", activeFilter.getAttribute('data-filter'));
+      setTimeout(() => {
+        filterAppointments(activeFilter.getAttribute('data-filter'), activeFilter);
+      }, 100);
+    } else {
+      console.error("No active filter found");
     }
+  } else if (tabName === 'messages') {
+    // Add this: Load conversations when switching to messages tab
+    console.log("Loading messages tab content");
+    setTimeout(() => {
+      loadConversations();
+    }, 100);
+  }
 }
 
   function filterAppointments(filter, button) {
@@ -640,32 +645,53 @@ function cancelAppointment(appointmentId) {
 }
 
 function messageStudent(studentId) {
+  try {
+    console.log(`Creating conversation with student ${studentId}`);
     Auth.authFetch('/messages/conversations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            participant_id: studentId
-        }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        participant_id: studentId
+      }),
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to create conversation');
-        }
-        return response.json();
+      console.log("Conversation API Response status:", response.status);
+      if (!response.ok) {
+        return response.json().then(data => {
+          throw new Error(data.error || 'Failed to create conversation');
+        });
+      }
+      return response.json();
     })
     .then(conversation => {
-        // Switch to messages tab
-        switchToTab('messages');
-        
-        // The messages tab should load conversations on activation
-        alert('Switched to Messages tab. Please select the conversation with the student.');
+      console.log("Conversation created/retrieved:", conversation);
+      // Switch to messages tab
+      switchToTab('messages');
+      
+      // The messages tab will load conversations in the switchToTab function
+      // but we need to make sure the right conversation is selected
+      setTimeout(() => {
+        console.log("Attempting to select conversation in UI");
+        const conversationItem = document.querySelector(`.conversation-item[data-id="${conversation.id}"]`);
+        if (conversationItem) {
+          console.log("Found conversation item, clicking it");
+          conversationItem.click();
+        } else {
+          console.error(`Could not find conversation element with ID: ${conversation.id}`);
+          alert('Conversation created. Please select it in the messages tab.');
+        }
+      }, 1000); // Give it a bit more time to ensure conversations are loaded
     })
     .catch(error => {
-        console.error('Error creating conversation:', error);
-        alert('Failed to create conversation');
+      console.error('Error creating conversation:', error);
+      alert('Failed to create conversation: ' + error.message);
     });
+  } catch (error) {
+    console.error('Error in messageStudent function:', error);
+    alert('Error starting conversation: ' + error.message);
+  }
 }
 
 // Improved reset function
@@ -786,47 +812,209 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
   // Test API connectivity
   document.addEventListener('DOMContentLoaded', function() {
-      // Display a message about connectivity
-      const appointmentsList = document.getElementById('appointments-list');
-      if (appointmentsList) {
-          appointmentsList.innerHTML = '<p>Testing API connection...</p>';
-          
-          // Try a basic fetch to the health endpoint
-          fetch('http://localhost:5000/health')
-              .then(response => {
-                  appointmentsList.innerHTML += `<p>Server responded with status: ${response.status}</p>`;
-                  return response.json();
-              })
-              .then(data => {
-                  appointmentsList.innerHTML += `<p>Server health: ${JSON.stringify(data)}</p>`;
-                  
-                  // Now try with authentication
-                  const token = localStorage.getItem('token');
-                  if (token) {
-                      appointmentsList.innerHTML += `<p>Testing authenticated request...</p>`;
-                      return fetch('http://localhost:5000/appointments?status=confirmed', {
-                          headers: {
-                              'Authorization': `Bearer ${token}`
-                          }
-                      });
-                  } else {
-                      throw new Error('No authentication token found');
-                  }
-              })
-              .then(response => {
-                  appointmentsList.innerHTML += `<p>Appointments API responded with status: ${response.status}</p>`;
-                  return response.json();
-              })
-              .then(data => {
-                  appointmentsList.innerHTML += `<p>Found ${data.length} appointments</p>`;
-                  appointmentsList.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-              })
-              .catch(error => {
-                  appointmentsList.innerHTML += `<p>Error: ${error.message}</p>`;
-              });
+    // Add reset button
+    const appointmentsHeader = document.querySelector('#appointments-tab .section-header');
+    if (appointmentsHeader) {
+        const resetButton = document.createElement('button');
+        resetButton.className = 'btn-primary btn-sm';
+        resetButton.textContent = 'Reset View';
+        resetButton.onclick = resetAppointmentsView;
+        resetButton.style.marginLeft = '10px';
+        appointmentsHeader.appendChild(resetButton);
+    }
+    if (typeof Auth !== 'undefined') {
+        const user = Auth.getCurrentUser();
+        if (user) {
+            const tutorNameElement = document.getElementById('tutor-name');
+            if (tutorNameElement) {
+                tutorNameElement.textContent = user.name || 'Tutor';
+                console.log('Updated tutor name to:', user.name);
+            }
+        }
+    }
+    // Run health check
+    setTimeout(checkAPIHealth, 1000);
+    
+    // Load initial view for each tab
+    const overviewBtn = document.querySelector('.tab-btn[data-tab="overview"]');
+    if (overviewBtn) overviewBtn.click();
+
+    // ADD THE MESSAGE FORM EVENT LISTENER CODE HERE, BEFORE THE CLOSING BRACKET
+    // Message form submission
+    const messageForm = document.getElementById('message-form');
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const messageInput = document.getElementById('message-input');
+            const messageText = messageInput.value.trim();
+            const conversationId = this.getAttribute('data-conversation');
+            
+            if (messageText && conversationId) {
+                sendMessage(conversationId, messageText);
+                messageInput.value = '';
+            } else {
+                console.log('Cannot send message: ' + 
+                            (!messageText ? 'No message text' : 'No conversation selected'));
+            }
+        });
+        console.log('Message form event listener attached');
+    } else {
+        console.error('Message form not found in the document!');
+    }
+});
+    // Function to send a message
+  async function sendMessage(conversationId, messageText) {
+    try {
+      console.log(`Sending message to conversation ${conversationId}: ${messageText}`);
+      const response = await Auth.authFetch(`/messages/conversations/${conversationId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message_text: messageText
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send message');
       }
-  });
-  </script>
+      
+      // Reload messages
+      loadMessages(conversationId);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message: ' + error.message);
+    }
+  }
+
+  // Function to load messages for a conversation
+async function loadMessages(conversationId) {
+  try {
+    const chatMessagesContainer = document.getElementById('chat-messages');
+    chatMessagesContainer.innerHTML = '<p class="loading-message">Loading messages...</p>';
+    
+    console.log(`Loading messages for conversation ${conversationId}`);
+    const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to load messages');
+    }
+    
+    const messages = await response.json();
+    console.log(`Loaded ${messages.length} messages`);
+    
+    if (messages.length === 0) {
+      chatMessagesContainer.innerHTML = '<div class="empty-state"><p>No messages in this conversation yet.</p></div>';
+      return;
+    }
+    
+    // Format the messages
+    const messagesHTML = messages.map(msg => {
+      const isCurrentUser = msg.sent_by_me;
+      const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+      const date = new Date(msg.created_at).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      return `
+        <div class="message ${messageClass}">
+          <div class="message-content">${msg.text}</div>
+          <div class="message-info">
+            ${isCurrentUser ? 'You' : msg.sender.name} • ${date}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    chatMessagesContainer.innerHTML = messagesHTML;
+    
+    // Scroll to bottom
+    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    
+    // Store active conversation ID in the form
+    document.getElementById('message-form').setAttribute('data-conversation', conversationId);
+  } catch (error) {
+    console.error('Error loading messages:', error);
+    document.getElementById('chat-messages').innerHTML = `
+      <div class="error-message">
+        <p>Error loading messages: ${error.message}</p>
+        <button onclick="loadMessages('${conversationId}')" class="btn-outline btn-sm">Try Again</button>
+      </div>
+    `;
+  }
+}
+
+// Function to load conversations
+async function loadConversations() {
+  try {
+    const conversationsContainer = document.getElementById('conversations');
+    conversationsContainer.innerHTML = '<p class="loading-message">Loading conversations...</p>';
+    
+    console.log('Fetching conversations...');
+    const response = await Auth.authFetch('/messages/conversations');
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error response:', errorData);
+      throw new Error(errorData.error || 'Failed to load conversations');
+    }
+    
+    const conversations = await response.json();
+    console.log('Conversations loaded:', conversations);
+    
+    if (conversations.length === 0) {
+      conversationsContainer.innerHTML = '<div class="empty-state"><p>No conversations found.</p></div>';
+      return;
+    }
+    
+    const conversationsHTML = conversations.map(conversation => {
+      const participant = conversation.participant;
+      const lastMessage = conversation.lastMessage 
+        ? conversation.lastMessage.text 
+        : 'No messages yet';
+      
+      return `
+        <div class="conversation-item" data-id="${conversation.id}">
+          <div class="conversation-name">${participant.name}</div>
+          <div class="conversation-preview">${lastMessage}</div>
+        </div>
+      `;
+    }).join('');
+    
+    conversationsContainer.innerHTML = conversationsHTML;
+    
+    // Add click event to conversation items
+    document.querySelectorAll('.conversation-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.conversation-item').forEach(i => {
+          i.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        const conversationId = this.getAttribute('data-id');
+        loadMessages(conversationId);
+      });
+    });
+  } catch (error) {
+    console.error('Error loading conversations:', error);
+    document.getElementById('conversations').innerHTML = `
+      <div class="error-message">
+        <p>Error loading conversations: ${error.message}</p>
+        <button onclick="loadConversations()" class="btn-outline btn-sm">Try Again</button>
+      </div>
+    `;
+  }
+}
+
+</script>
 
 </body>
 </html>

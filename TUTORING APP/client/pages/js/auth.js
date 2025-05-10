@@ -122,6 +122,7 @@ async function authFetch(url, options = {}) {
     headers: {
       ...options.headers,
       'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json', // Add this default
     },
   };
   
@@ -129,6 +130,7 @@ async function authFetch(url, options = {}) {
   
   try {
     const response = await fetch(`${API_URL}${url}`, authOptions);
+    console.log('Response status:', response.status);
     
     // If unauthorized (token expired or invalid), logout user
     if (response.status === 401) {
