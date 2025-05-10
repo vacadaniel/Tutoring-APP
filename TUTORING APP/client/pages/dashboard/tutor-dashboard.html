@@ -27,12 +27,12 @@
         </section>
 
         <section class="dashboard-tabs">
-            <div class="tab-buttons">
-                <button class="tab-btn active" data-tab="overview">Overview</button>
-                <button class="tab-btn" data-tab="appointments">Appointments</button>
-                <button class="tab-btn" data-tab="messages">Messages</button>
-                <button class="tab-btn" data-tab="profile">Profile & Availability</button>
-            </div>
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="overview" onclick="switchToTab('overview')">Overview</button>
+            <button class="tab-btn" data-tab="appointments" onclick="switchToTab('appointments')">Appointments</button>
+            <button class="tab-btn" data-tab="messages" onclick="switchToTab('messages')">Messages</button>
+            <button class="tab-btn" data-tab="profile" onclick="switchToTab('profile')">Profile & Availability</button>
+        </div>
 
             <div class="tab-content">
                 <!-- Overview Tab -->
@@ -124,10 +124,10 @@
                     </div>
 
                     <div class="appointments-filter">
-                        <button class="filter-btn active" data-filter="upcoming">Upcoming</button>
-                        <button class="filter-btn" data-filter="past">Past</button>
-                        <button class="filter-btn" data-filter="pending">Pending</button>
-                    </div>
+                      <button class="filter-btn active" data-filter="upcoming" onclick="filterAppointments('upcoming', this)">Upcoming</button>
+                      <button class="filter-btn" data-filter="past" onclick="filterAppointments('past', this)">Past</button>
+                      <button class="filter-btn" data-filter="pending" onclick="filterAppointments('pending', this)">Pending</button>
+                  </div>
 
                     <div id="appointments-list" class="appointments-list">
                         <!-- Appointments will be loaded here -->
@@ -395,758 +395,438 @@
             <a href="#">Contact Us</a>
         </div>
     </footer>
-<!-- Add this right before the closing </body> tag in tutor-dashboard.html -->
-<script src="/js/auth.js"></script>
+<!-- Add this right before the closing </body> -->
+<script src="../js/auth.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Require authentication
-    if (!Auth.requireAuth()) {
-      return; // This will redirect to login page if not authenticated
-    }
+  function switchToTab(tabName) {
+    console.log("Switching to tab:", tabName);
     
-    const user = Auth.getCurrentUser();
-    
-    // Verify correct dashboard
-    if (user.role !== 'tutor') {
-      alert('Access denied. Redirecting to student dashboard.');
-      window.location.href = '/dashboard/student-dashboard.html';
-      return;
-    }
-    
-    // Update username display
-    document.getElementById('tutor-name').textContent = user.name;
-    
-    // Load tutor data
-    loadTutorData();
-    loadAppointments('upcoming');
-    loadMessages('conv1'); // Load first conversation
-    
-    // Tab switching
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const tabName = this.getAttribute('data-tab');
-        switchTab(tabName);
-      });
-    });
-    
-    // Appointment filters
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-btn').forEach(b => {
-          b.classList.remove('active');
-        });
-        this.classList.add('active');
-        
-        const filter = this.getAttribute('data-filter');
-        loadAppointments(filter);
-      });
-    });
-    
-    // Load conversations
-    loadConversations();
-    
-    // Message form
-    document.getElementById('message-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const conversationId = this.getAttribute('data-conversation');
-      const messageInput = document.getElementById('message-input');
-      const messageText = messageInput.value.trim();
-      
-      if (messageText && conversationId) {
-        sendMessage(conversationId, messageText);
-        messageInput.value = '';
-      }
-    });
-    
-    // Profile form
-    document.getElementById('profile-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const name = document.getElementById('profile-name').value.trim();
-      const email = document.getElementById('profile-email').value.trim();
-      const school = document.getElementById('profile-school').value.trim();
-      const hourlyRate = document.getElementById('hourly-rate').value;
-      const bio = document.getElementById('bio').value.trim();
-      const password = document.getElementById('profile-password').value.trim();
-      
-      updateProfile({
-        name, 
-        email,
-        school,
-        hourly_rate: hourlyRate,
-        bio,
-        password: password || undefined
-      });
-    });
-    
-    // Add new subject
-    const newSubjectInput = document.getElementById('new-subject');
-    newSubjectInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        
-        const subject = this.value.trim();
-        if (subject) {
-          addSubjectTag(subject);
-          this.value = '';
-        }
-      }
-    });
-    
-    // Remove subject tags
-    document.querySelectorAll('.remove-tag').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const subject = this.getAttribute('data-subject');
-        this.parentElement.remove();
-      });
-    });
-    
-    // Calendar day selection
-    document.querySelectorAll('.day').forEach(day => {
-      day.addEventListener('click', function() {
-        if (!this.classList.contains('other-month')) {
-          document.querySelectorAll('.day').forEach(d => {
-            d.classList.remove('selected');
-          });
-          
-          this.classList.add('selected');
-          
-          // Update selected day heading
-          const date = this.textContent.trim();
-          document.querySelector('#selected-day h4').textContent = `Time Slots for April ${date}, 2025`;
-        }
-      });
-    });
-    
-    // Time slot selection
-    document.querySelectorAll('.time-slot').forEach(slot => {
-      slot.addEventListener('click', function() {
-        this.classList.toggle('available');
-      });
-    });
-    
-    // Logout button
-    document.getElementById('logout-btn').addEventListener('click', function() {
-      if (confirm('Are you sure you want to log out?')) {
-        Auth.logoutUser();
-      }
-    });
-  });
-  
-  // Tab switching function
-  function switchTab(tabName) {
-    // Update active tab button
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.getAttribute('data-tab') === tabName) {
-        btn.classList.add('active');
-      }
-    });
-    
-    // Update active tab pane
+    // Hide all tab panes
     document.querySelectorAll('.tab-pane').forEach(pane => {
-      pane.classList.remove('active');
+        pane.classList.remove('active');
     });
-    document.getElementById(`${tabName}-tab`).classList.add('active');
-  }
-  
-  // Load tutor data
-  async function loadTutorData() {
-    try {
-      const response = await Auth.authFetch('/users/profile');
-      
-      if (!response.ok) {
-        throw new Error('Failed to load tutor data');
-      }
-      
-      const tutorData = await response.json();
-      
-      // Load profile data
-      document.getElementById('profile-name').value = tutorData.name;
-      document.getElementById('profile-email').value = tutorData.email;
-      document.getElementById('profile-school').value = tutorData.school;
-      document.getElementById('hourly-rate').value = tutorData.hourly_rate || 50;
-      document.getElementById('bio').value = tutorData.bio || '';
-      
-      // Load subjects
-      if (tutorData.subjects && tutorData.subjects.length > 0) {
-        const subjectTags = document.querySelector('.subject-tags');
-        subjectTags.innerHTML = '';
+    
+    // Show selected tab pane
+    const selectedPane = document.getElementById(`${tabName}-tab`);
+    if (selectedPane) selectedPane.classList.add('active');
+    
+    // Deactivate all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Activate selected tab button
+    const selectedBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    if (selectedBtn) selectedBtn.classList.add('active');
+    
+    // Special handling for appointments tab
+    if (tabName === 'appointments') {
+        console.log("Loading appointments tab content");
+        // Get the currently active filter or default to 'upcoming'
+        const activeFilter = document.querySelector('.filter-btn.active') || 
+                            document.querySelector('.filter-btn[data-filter="upcoming"]');
         
-        tutorData.subjects.forEach(subject => {
-          addSubjectTag(subject);
-        });
-      }
-      
-      // Load stats
-      await loadStats();
-    } catch (error) {
-      console.error('Error loading tutor data:', error);
-    }
-  }
-  
-  // Load tutor stats
-  async function loadStats() {
-    try {
-      const tutorId = Auth.getCurrentUser().id;
-      
-      // Get reviews
-      const reviewsResponse = await fetch(`http://localhost:5000/reviews/tutor/${tutorId}`);
-      
-      if (!reviewsResponse.ok) {
-        throw new Error('Failed to load reviews');
-      }
-      
-      const reviewsData = await reviewsResponse.json();
-      
-      // Update stats
-      document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = 
-        await getCompletedSessionsCount();
-      document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = 
-        reviewsData.avg_rating.toFixed(1);
-      document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = 
-        reviewsData.total_reviews;
-      document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = 
-        await getUpcomingSessionsCount();
-      
-      // Update reviews
-      const reviewsContainer = document.querySelector('.reviews-container');
-      
-      if (reviewsData.reviews.length === 0) {
-        reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
-        return;
-      }
-      
-      const reviewsHTML = reviewsData.reviews.slice(0, 3).map(review => {
-        const date = new Date(review.created_at).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        
-        return `
-          <div class="review-item">
-            <div class="review-header">
-              <span class="reviewer-name">${review.student_name}</span>
-              <span class="review-rating">${review.rating.toFixed(1)} ★</span>
-              <span class="review-date">${date}</span>
-            </div>
-            <p class="review-comment">${review.comment}</p>
-          </div>
-        `;
-      }).join('');
-      
-      reviewsContainer.innerHTML = reviewsHTML;
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-  }
-  
-  // Get count of completed sessions
-  async function getCompletedSessionsCount() {
-    try {
-      const response = await Auth.authFetch('/appointments?status=completed');
-      
-      if (!response.ok) {
-        throw new Error('Failed to load completed sessions');
-      }
-      
-      const appointments = await response.json();
-      return appointments.length;
-    } catch (error) {
-      console.error('Error loading completed sessions count:', error);
-      return 0;
-    }
-  }
-  
-  // Get count of upcoming sessions
-  async function getUpcomingSessionsCount() {
-    try {
-      const response = await Auth.authFetch('/appointments?status=confirmed');
-      
-      if (!response.ok) {
-        throw new Error('Failed to load upcoming sessions');
-      }
-      
-      const appointments = await response.json();
-      return appointments.length;
-    } catch (error) {
-      console.error('Error loading upcoming sessions count:', error);
-      return 0;
-    }
-  }
-  
-  // Load appointments based on filter
-  async function loadAppointments(filter = 'upcoming') {
-    try {
-      let url = '/appointments';
-      if (filter) {
-        url += `?status=${filter}`;
-      }
-      
-      const response = await Auth.authFetch(url);
-      
-      if (!response.ok) {
-        throw new Error('Failed to load appointments');
-      }
-      
-      const appointments = await response.json();
-      const appointmentsList = document.getElementById('appointments-list');
-      
-      if (appointments.length === 0) {
-        appointmentsList.innerHTML = '<p>No appointments found.</p>';
-        return;
-      }
-      
-      const appointmentsHTML = appointments.map(appointment => {
-        const date = new Date(appointment.start_time).toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        
-        let actionsHTML = '';
-        if (appointment.status === 'confirmed') {
-          actionsHTML = `
-            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
-            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-          `;
-        } else if (appointment.status === 'pending') {
-          actionsHTML = `
-            <button class="btn-primary btn-sm" onclick="confirmAppointment('${appointment.id}')">Confirm</button>
-            <button class="btn-outline btn-sm" onclick="declineAppointment('${appointment.id}')">Decline</button>
-            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-          `;
-        } else if (appointment.status === 'completed') {
-          actionsHTML = `
-            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-          `;
+        if (activeFilter) {
+            console.log("Active filter:", activeFilter.getAttribute('data-filter'));
+            // Use setTimeout to ensure the tab is visible first
+            setTimeout(() => {
+                filterAppointments(activeFilter.getAttribute('data-filter'), activeFilter);
+            }, 100);
+        } else {
+            console.error("No active filter found");
         }
-        
-        return `
-          <div class="appointment-card">
-            <div class="appointment-header">
-              <span class="appointment-subject">${appointment.subject}</span>
-              <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
-            </div>
-            <div class="appointment-info">
-              <div class="appointment-student">
-                <strong>Student:</strong> ${appointment.student_name}
-              </div>
-              <div class="appointment-date">
-                <strong>Date:</strong> ${date}
-              </div>
-            </div>
-            <div class="appointment-actions">
-              ${actionsHTML}
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      appointmentsList.innerHTML = appointmentsHTML;
-    } catch (error) {
-      console.error('Error loading appointments:', error);
-      document.getElementById('appointments-list').innerHTML = `
-        <div class="error-message">
-          <p>Error loading appointments. Please try again later.</p>
-        </div>
-      `;
     }
-  }
-  
-  // Load conversations
-  async function loadConversations() {
-    try {
-      const response = await Auth.authFetch('/messages/conversations');
-      
-      if (!response.ok) {
-        throw new Error('Failed to load conversations');
-      }
-      
-      const conversations = await response.json();
-      const conversationsContainer = document.getElementById('conversations');
-      
-      if (conversations.length === 0) {
-        conversationsContainer.innerHTML = '<p>No conversations found.</p>';
-        return;
-      }
-      
-      const conversationsHTML = conversations.map(conversation => {
-        const participant = conversation.participant;
-        const lastMessage = conversation.lastMessage ? conversation.lastMessage.text : 'No messages yet';
-        
-        return `
-          <div class="conversation-item" data-id="${conversation.id}">
-            <div class="conversation-name">${participant.name}</div>
-            <div class="conversation-preview">${lastMessage}</div>
-          </div>
-        `;
-      }).join('');
-      
-      conversationsContainer.innerHTML = conversationsHTML;
-      
-      // Add click event to conversation items
-      document.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', function() {
-          document.querySelectorAll('.conversation-item').forEach(i => {
-            i.classList.remove('active');
-          });
-          this.classList.add('active');
-          
-          const conversationId = this.getAttribute('data-id');
-          loadMessages(conversationId);
+}
+
+  function filterAppointments(filter, button) {
+    console.log("Filtering appointments by:", filter);
+    
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    button.classList.add('active');
+    
+    // Show loading message
+    const appointmentsList = document.getElementById('appointments-list');
+    if (appointmentsList) {
+        appointmentsList.innerHTML = '<p class="loading-message">Loading appointments...</p>';
+    }
+
+    // Determine API endpoint
+    let url = '/appointments';
+    let status = '';
+    
+    if (filter === 'upcoming') status = 'confirmed';
+    else if (filter === 'past') status = 'completed';
+    else if (filter === 'pending') status = 'pending';
+    
+    if (status) {
+        url += `?status=${status}`;
+    }
+    
+    console.log("Fetching from URL:", url);
+    
+    // Fetch appointments
+    Auth.authFetch(url)
+        .then(response => {
+            console.log("API Response status:", response.status);
+            if (!response.ok) {
+                throw new Error(`Failed to load appointments: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(appointments => {
+            console.log(`Found ${appointments.length} ${filter} appointments`);
+            
+            if (appointments.length === 0) {
+                appointmentsList.innerHTML = `<p class="no-data-message">No ${filter} appointments found.</p>`;
+                return;
+            }
+            
+            // Generate HTML for appointments
+            const appointmentsHTML = appointments.map(appointment => {
+                const date = new Date(appointment.start_time).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let actionsHTML = '';
+                if (appointment.status === 'confirmed') {
+                    actionsHTML = `
+                        <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+                        <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+                    `;
+                } else if (appointment.status === 'pending') {
+                    actionsHTML = `
+                        <button class="btn-primary btn-sm" onclick="confirmAppointment('${appointment.id}')">Confirm</button>
+                        <button class="btn-outline btn-sm" onclick="declineAppointment('${appointment.id}')">Decline</button>
+                        <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+                    `;
+                } else if (appointment.status === 'completed') {
+                    actionsHTML = `
+                        <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+                    `;
+                }
+                
+                return `
+                    <div class="appointment-card">
+                        <div class="appointment-header">
+                            <span class="appointment-subject">${appointment.subject}</span>
+                            <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
+                        </div>
+                        <div class="appointment-info">
+                            <div class="appointment-student">
+                                <strong>Student:</strong> ${appointment.student_name || 'Unknown'}
+                            </div>
+                            <div class="appointment-date">
+                                <strong>Date:</strong> ${date}
+                            </div>
+                        </div>
+                        <div class="appointment-actions">
+                            ${actionsHTML}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            appointmentsList.innerHTML = appointmentsHTML;
+        })
+        .catch(error => {
+            console.error('Error loading appointments:', error);
+            appointmentsList.innerHTML = `
+                <div class="error-message">
+                    <p>Error loading appointments: ${error.message || 'Unknown error'}</p>
+                    <button onclick="resetAppointmentsView()">
+                        Try Again
+                    </button>
+                </div>
+            `;
         });
-      });
-    } catch (error) {
-      console.error('Error loading conversations:', error);
+}
+
+// Appointment action functions
+function confirmAppointment(appointmentId) {
+    if (confirm('Are you sure you want to confirm this appointment?')) {
+        Auth.authFetch(`/appointments/${appointmentId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                status: 'confirmed'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to confirm appointment');
+            }
+            alert('Appointment confirmed successfully!');
+            
+            // Reload the current filter
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter) {
+                filterAppointments(activeFilter.getAttribute('data-filter'), activeFilter);
+            }
+        })
+        .catch(error => {
+            console.error('Error confirming appointment:', error);
+            alert('Failed to confirm appointment');
+        });
     }
-  }
-  
-  // Load messages for a conversation
-  async function loadMessages(conversationId) {
-    try {
-      const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to load messages');
-      }
-      
-      const messages = await response.json();
-      const chatMessagesContainer = document.getElementById('chat-messages');
-      
-      if (messages.length === 0) {
-        chatMessagesContainer.innerHTML = '<p>No messages found.</p>';
-        return;
-      }
-      
-      const messagesHTML = messages.map(message => {
-        const isCurrentUser = message.sent_by_me;
-        const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
-        const date = new Date(message.created_at).toLocaleString();
-        
-        return `
-          <div class="message ${messageClass}">
-            <div class="message-content">${message.text}</div>
-            <div class="message-info">
-              ${isCurrentUser ? 'You' : message.sender.name} • ${date}
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      chatMessagesContainer.innerHTML = messagesHTML;
-      
-      // Scroll to bottom
-      chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-      
-      // Store active conversation ID
-      document.getElementById('message-form').setAttribute('data-conversation', conversationId);
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    }
-  }
-  
-  // Send a message
-  async function sendMessage(conversationId, messageText) {
-    try {
-      const response = await Auth.authFetch(`/messages/conversations/${conversationId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message_text: messageText
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-      
-      // Reload messages
-      loadMessages(conversationId);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Failed to send message');
-    }
-  }
-  
-  // Handle appointment actions
-  async function confirmAppointment(appointmentId) {
-    try {
-      const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: 'confirmed'
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to confirm appointment');
-      }
-      
-      // Reload appointments
-      const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-      loadAppointments(activeFilter);
-      
-      alert('Appointment confirmed successfully!');
-    } catch (error) {
-      console.error('Error confirming appointment:', error);
-      alert('Failed to confirm appointment');
-    }
-  }
-  
-  async function declineAppointment(appointmentId) {
+}
+
+function declineAppointment(appointmentId) {
     if (confirm('Are you sure you want to decline this appointment?')) {
-      try {
-        const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            status: 'canceled'
-          }),
+        Auth.authFetch(`/appointments/${appointmentId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                status: 'canceled'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to decline appointment');
+            }
+            alert('Appointment declined successfully!');
+            
+            // Reload the current filter
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter) {
+                filterAppointments(activeFilter.getAttribute('data-filter'), activeFilter);
+            }
+        })
+        .catch(error => {
+            console.error('Error declining appointment:', error);
+            alert('Failed to decline appointment');
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to decline appointment');
-        }
-        
-        // Reload appointments
-        const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-        loadAppointments(activeFilter);
-        
-        alert('Appointment declined successfully!');
-      } catch (error) {
-        console.error('Error declining appointment:', error);
-        alert('Failed to decline appointment');
-      }
     }
-  }
-  
-  async function cancelAppointment(appointmentId) {
+}
+
+function cancelAppointment(appointmentId) {
     if (confirm('Are you sure you want to cancel this appointment?')) {
-      try {
-        const response = await Auth.authFetch(`/appointments/${appointmentId}/status`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            status: 'canceled'
-          }),
+        Auth.authFetch(`/appointments/${appointmentId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                status: 'canceled'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to cancel appointment');
+            }
+            alert('Appointment canceled successfully!');
+            
+            // Reload the current filter
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter) {
+                filterAppointments(activeFilter.getAttribute('data-filter'), activeFilter);
+            }
+        })
+        .catch(error => {
+            console.error('Error canceling appointment:', error);
+            alert('Failed to cancel appointment');
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to cancel appointment');
-        }
-        
-        // Reload appointments
-        const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-        loadAppointments(activeFilter);
-        
-        alert('Appointment canceled successfully!');
-      } catch (error) {
-        console.error('Error canceling appointment:', error);
-        alert('Failed to cancel appointment');
-      }
     }
-  }
-  
-  async function messageStudent(studentId) {
-    try {
-      // Create or get conversation with student
-      const response = await Auth.authFetch('/messages/conversations', {
+}
+
+function messageStudent(studentId) {
+    Auth.authFetch('/messages/conversations', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          participant_id: studentId
+            participant_id: studentId
         }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create conversation');
-      }
-      
-      const conversation = await response.json();
-      
-      // Switch to messages tab
-      switchTab('messages');
-      
-      // Load messages and select conversation
-      await loadConversations(); // Reload conversations first
-      
-      // Find and click the conversation
-      document.querySelectorAll('.conversation-item').forEach(item => {
-        if (item.getAttribute('data-id') === conversation.id) {
-          item.click();
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to create conversation');
         }
-      });
-    } catch (error) {
-      console.error('Error creating conversation:', error);
-      alert('Failed to create conversation');
-    }
-  }
-  
-  // Update profile
-  async function updateProfile(profileData) {
-    try {
-      const response = await Auth.authFetch('/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileData),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-      
-      const updatedUser = await response.json();
-      
-      // Update localStorage with new user data (except password)
-      const currentUser = Auth.getCurrentUser();
-      const newUserData = {
-        ...currentUser,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        school: updatedUser.school
-      };
-      localStorage.setItem('user', JSON.stringify(newUserData));
-      
-      // Update display
-      document.getElementById('tutor-name').textContent = updatedUser.name;
-      
-      alert('Profile updated successfully!');
-    } catch (error) {
-      console.error('Profile update error:', error);
-      alert('Failed to update profile: ' + error.message);
-    }
-  }
-  
-  // Add subject tag
-  function addSubjectTag(subject) {
-    const subjectTags = document.querySelector('.subject-tags');
-    
-    const tagHTML = `
-      <div class="subject-tag">
-        ${subject}
-        <span class="remove-tag" data-subject="${subject}">×</span>
-      </div>
-    `;
-    
-    subjectTags.innerHTML += tagHTML;
-    
-    // Add event listener to new remove button
-    const newTag = subjectTags.lastElementChild;
-    newTag.querySelector('.remove-tag').addEventListener('click', function() {
-      this.parentElement.remove();
-    });
-  }
-</script>
-4. For become-tutor.html
-html<!-- Add this right before the closing </body> tag in become-tutor.html -->
-<script src="/js/auth.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const subjectInput = document.getElementById('new-subject');
-    const subjectTags = document.getElementById('subject-tags');
-    const subjects = new Set();
-    
-    // Add subject tag when Enter is pressed
-    subjectInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const subject = this.value.trim();
+        return response.json();
+    })
+    .then(conversation => {
+        // Switch to messages tab
+        switchToTab('messages');
         
-        if (subject && !subjects.has(subject)) {
-          addSubjectTag(subject);
-          this.value = '';
-        }
-      }
+        // The messages tab should load conversations on activation
+        alert('Switched to Messages tab. Please select the conversation with the student.');
+    })
+    .catch(error => {
+        console.error('Error creating conversation:', error);
+        alert('Failed to create conversation');
+    });
+}
+
+// Improved reset function
+function resetAppointmentsView() {
+    console.log("Resetting appointments view...");
+    
+    // Reset filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
     });
     
-    // Function to add a subject tag
-    function addSubjectTag(subject) {
-      subjects.add(subject);
-      
-      const tag = document.createElement('div');
-      tag.className = 'subject-tag';
-      tag.innerHTML = `
-          ${subject}
-          <span class="remove-tag" data-subject="${subject}">×</span>
-      `;
-      
-      subjectTags.appendChild(tag);
-      
-      // Add click event to remove button
-      tag.querySelector('.remove-tag').addEventListener('click', function() {
-        const subject = this.getAttribute('data-subject');
-        subjects.delete(subject);
-        this.parentElement.remove();
-      });
+    // Set 'upcoming' as active
+    const upcomingButton = document.querySelector('.filter-btn[data-filter="upcoming"]');
+    if (upcomingButton) {
+        upcomingButton.classList.add('active');
+        
+        // Clear the appointment list first
+        const appointmentsList = document.getElementById('appointments-list');
+        if (appointmentsList) {
+            appointmentsList.innerHTML = '<p class="loading-message">Resetting view...</p>';
+        }
+        
+        // Delay the reload slightly to ensure UI updates
+        setTimeout(() => {
+            filterAppointments('upcoming', upcomingButton);
+        }, 500);
     }
     
-    // Form submission
-    document.getElementById('tutor-signup-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      // Get form values
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
-      const school = document.getElementById('school').value;
-      const hourlyRate = document.getElementById('hourly-rate').value;
-      const bio = document.getElementById('bio').value.trim();
-      
-      // Basic validation
-      if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
-      }
-      
-      if (subjects.size === 0) {
-        alert('Please add at least one subject you can teach.');
-        return;
-      }
-      
-      try {
-        // Register as tutor
-        const userData = {
-          name,
-          email,
-          password,
-          role: 'tutor',
-          school,
-          hourly_rate: hourlyRate,
-          bio,
-          subjects: Array.from(subjects)
+    console.log("Appointments view reset complete");
+}
+
+// Check API health
+function checkAPIHealth() {
+    console.log("Checking API health...");
+    
+    // Check authentication
+    const token = localStorage.getItem('token');
+    console.log("Authentication token exists:", !!token);
+    
+    // Try a simple API call
+    fetch('http://localhost:5000/health')
+        .then(response => {
+            console.log("Health check response:", response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log("Health check data:", data);
+        })
+        .catch(error => {
+            console.error("Health check error:", error);
+        });
+    
+    // Try authenticated call
+    if (token) {
+        fetch('http://localhost:5000/users/profile', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            console.log("Profile check response:", response.status);
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error(`Status: ${response.status}`);
+            }
+        })
+        .then(data => {
+            console.log("Profile data:", data);
+        })
+        .catch(error => {
+            console.error("Profile check error:", error);
+        });
+    }
+}
+
+// Add the reset button and run health check
+document.addEventListener('DOMContentLoaded', function() {
+    // Add reset button
+    const appointmentsHeader = document.querySelector('#appointments-tab .section-header');
+    if (appointmentsHeader) {
+        const resetButton = document.createElement('button');
+        resetButton.className = 'btn-primary btn-sm';
+        resetButton.textContent = 'Reset View';
+        resetButton.onclick = resetAppointmentsView;
+        resetButton.style.marginLeft = '10px';
+        appointmentsHeader.appendChild(resetButton);
+    }
+    if (typeof Auth !== 'undefined') {
+        const user = Auth.getCurrentUser();
+        if (user) {
+            const tutorNameElement = document.getElementById('tutor-name');
+            if (tutorNameElement) {
+                tutorNameElement.textContent = user.name || 'Tutor';
+                console.log('Updated tutor name to:', user.name);
+            }
+        }
+    }
+    // Run health check
+    setTimeout(checkAPIHealth, 1000);
+    
+    // Load initial view for each tab
+    const overviewBtn = document.querySelector('.tab-btn[data-tab="overview"]');
+    if (overviewBtn) overviewBtn.click();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const viewAllLink = document.querySelector('.section-header a.btn-outline');
+    if (viewAllLink) {
+        viewAllLink.onclick = function(e) {
+            e.preventDefault();
+            switchToTab('appointments');
         };
-        
-        const data = await Auth.registerUser(userData);
-        
-        alert(`Thank you for signing up as a tutor, ${name}! Your account will be reviewed shortly.`);
-        
-        // Redirect to tutor dashboard
-        window.location.href = '/dashboard/tutor-dashboard.html';
-      } catch (error) {
-        alert('Registration failed: ' + error.message);
-      }
-    });
-  });
+    }
+});
 </script>
+
+<script>
+  // Test API connectivity
+  document.addEventListener('DOMContentLoaded', function() {
+      // Display a message about connectivity
+      const appointmentsList = document.getElementById('appointments-list');
+      if (appointmentsList) {
+          appointmentsList.innerHTML = '<p>Testing API connection...</p>';
+          
+          // Try a basic fetch to the health endpoint
+          fetch('http://localhost:5000/health')
+              .then(response => {
+                  appointmentsList.innerHTML += `<p>Server responded with status: ${response.status}</p>`;
+                  return response.json();
+              })
+              .then(data => {
+                  appointmentsList.innerHTML += `<p>Server health: ${JSON.stringify(data)}</p>`;
+                  
+                  // Now try with authentication
+                  const token = localStorage.getItem('token');
+                  if (token) {
+                      appointmentsList.innerHTML += `<p>Testing authenticated request...</p>`;
+                      return fetch('http://localhost:5000/appointments?status=confirmed', {
+                          headers: {
+                              'Authorization': `Bearer ${token}`
+                          }
+                      });
+                  } else {
+                      throw new Error('No authentication token found');
+                  }
+              })
+              .then(response => {
+                  appointmentsList.innerHTML += `<p>Appointments API responded with status: ${response.status}</p>`;
+                  return response.json();
+              })
+              .then(data => {
+                  appointmentsList.innerHTML += `<p>Found ${data.length} appointments</p>`;
+                  appointmentsList.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+              })
+              .catch(error => {
+                  appointmentsList.innerHTML += `<p>Error: ${error.message}</p>`;
+              });
+      }
+  });
+  </script>
 
 </body>
 </html>
