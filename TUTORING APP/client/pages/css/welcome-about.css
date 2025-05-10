@@ -93,6 +93,7 @@
   color: #fe7f2d;
   text-decoration: none;
   font-weight: bold;
+  
 }
 
 .signup-link a:hover {
@@ -167,4 +168,10 @@
     width: 100%;
     max-width: 350px;
   }
+}
+
+.centered-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
