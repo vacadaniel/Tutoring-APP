@@ -1,4 +1,4 @@
-/* Base CSS - Common styles for all pages */
+/* Improved Base CSS - Consolidated styles for all pages */
 
 /* Reset and base styles */
 * {
@@ -24,7 +24,7 @@
     padding: 0;
   }
   
-  /* Navigation styles */
+  /* ===== NAVIGATION ===== */
   nav {
     position: fixed;
     top: 0;
@@ -79,10 +79,14 @@
     background-color: rgba(255, 255, 255, 0.2);
   }
   
-  /* Main content */
+  /* ===== MAIN CONTENT ===== */
   main {
     padding-top: 100px;
-    padding-bottom: 50px;
+    padding-bottom: 70px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
   }
   
   /* Common heading styles */
@@ -110,7 +114,7 @@
     margin: 0 auto 30px;
   }
   
-  /* Button styles */
+  /* ===== BUTTON STYLES ===== */
   .btn-primary, .btn-outline, .login-button {
     display: inline-block;
     padding: 12px 24px;
@@ -120,12 +124,13 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    border: none;
+    margin: 5px;
   }
   
   .btn-primary {
     background-color: #fe7f2d;
     color: #000000;
-    border: none;
   }
   
   .btn-primary:hover {
@@ -150,7 +155,7 @@
     font-size: 14px;
   }
   
-  /* Common form elements */
+  /* ===== FORM ELEMENTS ===== */
   .form-row {
     display: flex;
     gap: 20px;
@@ -191,13 +196,18 @@
     resize: vertical;
   }
   
-  /* Card styles */
+  /* ===== CARDS ===== */
   .card {
     background-color: rgba(0, 0, 0, 0.7);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
   }
   
   /* Section headers */
@@ -217,13 +227,14 @@
     text-align: center;
     font-size: 1.1em;
     border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
   }
   
   .error-message {
     background-color: rgba(217, 83, 79, 0.2);
   }
   
-  /* Modal styles */
+  /* ===== MODAL STYLES ===== */
   .modal {
     display: none;
     position: fixed;
@@ -284,7 +295,7 @@
     resize: vertical;
   }
   
-  /* Subject tags */
+  /* ===== SUBJECT TAGS ===== */
   .subject-tags {
     display: flex;
     flex-wrap: wrap;
@@ -308,12 +319,14 @@
     font-weight: bold;
   }
   
-  /* Footer */
+  /* ===== FOOTER ===== */
   footer {
     background-color: rgba(0, 0, 0, 0.8);
     padding: 20px;
     text-align: center;
-    margin-top: 80px;
+    width: 100%;
+    position: relative;
+    margin-top: 50px;
   }
   
   footer p {
@@ -338,36 +351,772 @@
     color: #fe7f2d;
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 992px) {
-    .form-row {
-      flex-direction: column;
-      gap: 10px;
+  /* ===== DASHBOARD STYLES ===== */
+  .dashboard-header {
+    text-align: center;
+    padding: 20px 0 40px;
+  }
+  
+  .dashboard-tabs {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .tab-buttons {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 30px;
+    overflow-x: auto;
+  }
+  
+  .tab-btn {
+    background: transparent;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  
+  .tab-btn:hover {
+    opacity: 1;
+  }
+  
+  .tab-btn.active {
+    opacity: 1;
+    border-bottom: 3px solid #fe7f2d;
+  }
+  
+  .tab-pane {
+    display: none;
+    padding: 20px 0;
+  }
+  
+  .tab-pane.active {
+    display: block;
+  }
+  
+  /* ===== APPOINTMENTS ===== */
+  .appointments-filter {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  
+  .filter-btn {
+    background: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  
+  .filter-btn.active {
+    background-color: #fe7f2d;
+  }
+  
+  .appointment-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .appointment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .appointment-subject {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+  
+  .appointment-status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .status-pending {
+    background-color: #f0ad4e;
+    color: #000000;
+  }
+  
+  .status-confirmed {
+    background-color: #5bc0de;
+    color: #000000;
+  }
+  
+  .status-completed {
+    background-color: #5cb85c;
+    color: #000000;
+  }
+  
+  .status-canceled {
+    background-color: #d9534f;
+    color: #ffffff;
+  }
+  
+  .appointment-info {
+    display: flex;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .appointment-tutor, .appointment-student {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .appointment-date {
+    flex: 1;
+    text-align: right;
+    min-width: 200px;
+  }
+  
+  .appointment-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  /* ===== MESSAGES ===== */
+  .messages-container {
+    display: flex;
+    height: 500px;
+    gap: 20px;
+    overflow: hidden;
+    flex-direction: column;
+  }
+  
+  @media (min-width: 768px) {
+    .messages-container {
+      flex-direction: row;
     }
   }
   
-  @media (max-width: 768px) {
-    nav {
-      padding: 0 20px;
-    }
-    
-    nav ul li {
-      margin: 0 5px;
-    }
-    
-    nav ul li a {
-      font-size: 14px;
-      padding: 8px 12px;
-    }
-    
-    h1 {
-      font-size: 2em;
+  .conversations-list {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    overflow-y: auto;
+  }
+  
+  @media (min-width: 768px) {
+    .conversations-list {
+      width: 30%;
     }
   }
   
-  @media (max-width: 576px) {
-    .btn-primary, 
-    .btn-outline {
-      width: 100%;
+  .conversation-items {
+    padding: 10px;
+  }
+  
+  .conversation-item {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .conversation-item:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  
+  .conversation-item.active {
+    background-color: rgba(254, 127, 45, 0.3);
+  }
+  
+  .conversation-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .conversation-preview {
+    font-size: 0.9em;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 300px;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .message {
+    margin-bottom: 15px;
+    max-width: 70%;
+  }
+  
+  .message-sent {
+    margin-left: auto;
+    background-color: #fe7f2d;
+    color: #000000;
+    border-radius: 12px 12px 0 12px;
+    padding: 10px 15px;
+  }
+  
+  .message-received {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 12px 12px 12px 0;
+    padding: 10px 15px;
+  }
+  
+  .message-info {
+    font-size: 0.8em;
+    margin-top: 5px;
+    opacity: 0.7;
+  }
+  
+  .chat-input {
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .message-form {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .message-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+  
+  /* ===== PROFILES ===== */
+  .profile-form {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .save-button {
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  /* ===== TUTOR PROFILE ===== */
+  .tutor-profile {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .profile-header {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    gap: 20px;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #fe7f2d;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: bold;
+    margin-right: 30px;
+  }
+  
+  .profile-info {
+    flex: 1;
+    text-align: left;
+    min-width: 250px;
+  }
+  
+  .tutor-school {
+    font-size: 1.2em;
+    opacity: 0.8;
+    margin-bottom: 15px;
+  }
+  
+  .tutor-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .stat {
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fe7f2d;
+    display: block;
+  }
+  
+  .stat-label {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+  
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .profile-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .profile-section {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .profile-section h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(254, 127, 45, 0.5);
+    padding-bottom: 10px;
+  }
+  
+  /* ===== WELCOME PAGE ===== */
+  .hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-direction: column;
+    padding: 0 20px;
+  }
+  
+  @media (min-width: 992px) {
+    .hero {
+      flex-direction: row;
     }
+  }
+  
+  .hero-content {
+    flex: 1;
+    text-align: center;
+    padding-right: 0;
+    margin-bottom: 40px;
+  }
+  
+  @media (min-width: 992px) {
+    .hero-content {
+      text-align: left;
+      padding-right: 40px;
+      margin-bottom: 0;
+    }
+  }
+  
+  .tagline {
+    font-size: 1.4em;
+    margin-bottom: 30px;
+    opacity: 0.9;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  @media (min-width: 992px) {
+    .cta-buttons {
+      justify-content: flex-start;
+    }
+  }
+  
+  .login-container {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .login-button {
+    background-color: #fe7f2d;
+    color: #000000;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+  
+  .signup-link {
+    font-size: 14px;
+    margin-top: 15px;
+  }
+  
+  .signup-link a {
+    color: #fe7f2d;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  /* ===== FEATURES SECTION ===== */
+  .features {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 0 20px;
+  }
+  
+  .feature-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .feature-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    flex: 1;
+    min-width: 280px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+  }
+  
+  /* ===== ABOUT PAGE ===== */
+  .about-hero {
+    text-align: center;
+    padding: 40px 0;
+  }
+  
+  .about-content {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .about-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    text-align: left;
+  }
+  
+  .two-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  @media (min-width: 768px) {
+    .two-column {
+      flex-direction: row;
+    }
+  }
+  
+  .column {
+    flex: 1;
+  }
+  
+  .feature-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .feature-list li {
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 25px;
+  }
+  
+  .feature-list li:before {
+    content: '✓';
+    color: #fe7f2d;
+    position: absolute;
+    left: 0;
+  }
+  
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 20px 0;
+  }
+  
+  .tech-item {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 15px;
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tech-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+  
+  .tech-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .tech-desc {
+    font-size: 0.9em;
+    opacity: 0.8;
+    text-align: center;
+  }
+  
+  .team-section {
+    text-align: center;
+  }
+  
+  .team-members {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  
+  .team-member {
+    flex: 1;
+    min-width: 200px;
+    max-width: 250px;
+  }
+  
+  .member-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #fe7f2d;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto 15px;
+  }
+  
+  .cta-section {
+    text-align: center;
+    padding: 30px;
+    background-color: rgba(254, 127, 45, 0.2);
+    border-radius: 15px;
+    margin-top: 30px;
+  }
+  
+  /* ===== TUTOR SIGNUP ===== */
+  .tutor-signup {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .form-header {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .form-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .checkbox-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  
+  .signup-benefits {
+    margin-top: 50px;
+  }
+  
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+  }
+  
+  .benefit-card {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+    text-align: center;
+  }
+  
+  .benefit-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+  }
+  
+  .benefit-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  /* ===== TUTORS SEARCH PAGE ===== */
+  .tutor-search {
+    text-align: center;
+    padding: 20px 0 40px;
+  }
+  
+  .search-filters {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 30px auto;
+    max-width: 1000px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .filter-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  
+  .filter-group {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .tutor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+  }
+  
+  .tutor-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .tutor-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .tutor-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #fe7f2d;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 36px;
+    font-weight: bold;
+  }
+  
+  /* Schedule appointment */
+  .appointment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .appointment-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 30px;
+  }
+  
+  @media (min-width: 992px) {
+    .appointment-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  .tutor-info-card {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: left;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
