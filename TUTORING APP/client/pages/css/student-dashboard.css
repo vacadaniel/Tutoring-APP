@@ -321,3 +321,81 @@
     margin-top: 5px;
   }
 }
+
+.btn-outline.disabled {
+    background-color: #808080;
+    color: #dedede;
+    border-color: #808080;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .btn-outline.disabled:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+
+  /* Conversation context styling */
+.conversation-context {
+    background-color: rgba(254, 127, 45, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .context-header {
+    color: #fe7f2d;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    text-transform: uppercase;
+  }
+  
+  .context-appointments {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .context-appointment-item {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+  }
+  
+  .context-subject {
+    font-weight: bold;
+  }
+  
+  .context-status {
+    font-size: 0.8em;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+  }
+  
+  /* Add to your existing status classes */
+  .context-status.status-confirmed {
+    background-color: #5bc0de;
+    color: #000000;
+  }
+  
+  .context-status.status-completed {
+    background-color: #5cb85c;
+    color: #000000;
+  }
+  
+  .context-status.status-pending {
+    background-color: #f0ad4e;
+    color: #000000;
+  }
+  
+  .context-status.status-canceled {
+    background-color: #d9534f;
+    color: #ffffff;
+  }

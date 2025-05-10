@@ -64,9 +64,32 @@ app.use('/messages', authenticateToken, messageRoutes(pool));
 const reviewRoutes = require('./routes/reviews');
 app.use('/reviews', authenticateToken, reviewRoutes(pool));
 
+// Availability Routes
+const availabilityRoutes = require('./routes/availability');
+app.use('/availability', authenticateToken, availabilityRoutes(pool));
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is running' });
+});
+
+app.get('/auth/validate-tutor', authenticateToken, (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    
+    if (userRole !== 'tutor') {
+      return res.status(403).json({ error: 'Not a tutor account' });
+    }
+    
+    res.status(200).json({ 
+      valid: true,
+      message: 'Valid tutor account'
+    });
+  } catch (error) {
+    console.error('Validation error:', error);
+    res.status(500).json({ error: 'Server error during validation' });
+  }
 });
 
 // Start the server

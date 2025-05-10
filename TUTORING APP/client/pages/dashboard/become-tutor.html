@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Become a Tutor - TutorConnect</title>
     <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../tutor-signup.css">
+    <link rel="stylesheet" href="../css/tutor-signup.css">
 </head>
 <body>
     <header>
@@ -221,7 +221,8 @@
                     alert(`Thank you for signing up as a tutor, ${name}! Your account has been created successfully.`);
                     
                     // Redirect to tutor dashboard
-                    window.location.href = '/dashboard/tutor-dashboard.html';
+                    console.log('Redirecting to tutor dashboard...');
+                    window.location.href = '../dashboard/tutor-dashboard.html';
                 } catch (error) {
                     alert('Registration failed: ' + error.message);
                     console.error('Registration error:', error);

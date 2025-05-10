@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Dashboard - TutorConnect</title>
     <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../tutor-dashboard.css">
+    <link rel="stylesheet" href="../css/tutor-dashboard.css">
 </head>
 <body>
     <header>
@@ -566,26 +566,26 @@
                     });
                     
                     return `
-                        <div class="appointment-card">
-                            <div class="appointment-header">
-                                <span class="appointment-subject">${appointment.subject}</span>
-                                <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
-                            </div>
-                            <div class="appointment-info">
-                                <div class="appointment-student">
-                                    <strong>Student:</strong> ${appointment.student_name || 'Unknown'}
-                                </div>
-                                <div class="appointment-date">
-                                    <strong>Date:</strong> ${date}
-                                </div>
-                            </div>
-                            <div class="appointment-actions">
-                                <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
-                                <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-                            </div>
+                      <div class="appointment-card">
+                        <div class="appointment-header">
+                          <span class="appointment-subject">${appointment.subject}</span>
+                          <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
                         </div>
+                        <div class="appointment-info">
+                          <div class="appointment-student">
+                            <strong>Student:</strong> ${appointment.student_name || 'Unknown'}
+                          </div>
+                          <div class="appointment-date">
+                            <strong>Date:</strong> ${date}
+                          </div>
+                        </div>
+                        <div class="appointment-actions">
+                          <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+                          <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
+                        </div>
+                      </div>
                     `;
-                }).join('');
+                  }).join('');
                 
                 appointmentsContainer.innerHTML = appointmentsHTML;
                 
@@ -646,20 +646,20 @@
                     
                     let actionsHTML = '';
                     if (appointment.status === 'confirmed') {
-                        actionsHTML = `
-                            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
-                            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-                        `;
+                      actionsHTML = `
+                        <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+                        <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message Student</button>
+                      `;
                     } else if (appointment.status === 'pending') {
-                        actionsHTML = `
-                            <button class="btn-primary btn-sm" onclick="confirmAppointment('${appointment.id}')">Confirm</button>
-                            <button class="btn-outline btn-sm" onclick="declineAppointment('${appointment.id}')">Decline</button>
-                            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-                        `;
+                      actionsHTML = `
+                        <button class="btn-primary btn-sm" onclick="confirmAppointment('${appointment.id}')">Confirm</button>
+                        <button class="btn-outline btn-sm" onclick="declineAppointment('${appointment.id}')">Decline</button>
+                        <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message Student</button>
+                      `;
                     } else if (appointment.status === 'completed') {
-                        actionsHTML = `
-                            <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message</button>
-                        `;
+                      actionsHTML = `
+                        <button class="btn-primary btn-sm" onclick="messageStudent('${appointment.student_id}')">Message Student</button>
+                      `;
                     }
                     
                     return `
@@ -753,63 +753,109 @@
             }
         }
         
-        // Load messages for a conversation
-        async function loadMessages(conversationId) {
-            try {
-                const chatMessagesContainer = document.getElementById('chat-messages');
-                chatMessagesContainer.innerHTML = '<div class="loading-message">Loading messages...</div>';
-                
-                // Set active conversation on message form
-                document.getElementById('message-form').setAttribute('data-conversation', conversationId);
-                
-                const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load messages');
-                }
-                
-                const messages = await response.json();
-                
-                if (messages.length === 0) {
-                    chatMessagesContainer.innerHTML = '<p class="no-data-message">No messages in this conversation yet.</p>';
-                    return;
-                }
-                
-                const messagesHTML = messages.map(message => {
-                    const isCurrentUser = message.sent_by_me;
-                    const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
-                    const date = new Date(message.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
+       // Full corrected loadMessages function for tutor-dashboard.html
+      async function loadMessages(conversationId) {
+        try {
+          // Define at the beginning of the function
+          const isStudent = false; // We're in the tutor dashboard
+          
+          const chatMessagesContainer = document.getElementById('chat-messages');
+          chatMessagesContainer.innerHTML = '<div class="loading-message">Loading messages...</div>';
+          
+          // Set active conversation on message form
+          document.getElementById('message-form').setAttribute('data-conversation', conversationId);
+          
+          // Load both messages and conversation context
+          const [messagesResponse, contextResponse] = await Promise.all([
+            Auth.authFetch(`/messages/conversations/${conversationId}`),
+            Auth.authFetch(`/messages/conversations/${conversationId}/context`)
+          ]);
+          
+          if (!messagesResponse.ok) {
+            throw new Error('Failed to load messages');
+          }
+          
+          const messages = await messagesResponse.json();
+          
+          let contextHTML = '';
+          if (contextResponse.ok) {
+            const context = await contextResponse.json();
+            if (context.appointments && context.appointments.length > 0) {
+              // Create an appointment context banner
+              contextHTML = `
+                <div class="conversation-context">
+                  <div class="context-header">
+                    <span>Appointments with this ${isStudent ? 'tutor' : 'student'}</span>
+                  </div>
+                  <div class="context-appointments">
+                    ${context.appointments.map(appt => {
+                      const date = new Date(appt.start_time).toLocaleDateString('en-US', { 
+                        month: 'short', 
                         day: 'numeric',
-                        hour: '2-digit',
+                        hour: '2-digit', 
                         minute: '2-digit'
-                    });
-                    
-                    return `
-                        <div class="message ${messageClass}">
-                            <div class="message-content">${message.text}</div>
-                            <div class="message-info">
-                                ${isCurrentUser ? 'You' : message.sender.name} • ${date}
-                            </div>
+                      });
+                      return `
+                        <div class="context-appointment-item">
+                          <span class="context-subject">${appt.subject}</span>
+                          <span class="context-date">${date}</span>
+                          <span class="context-status status-${appt.status}">${appt.status}</span>
                         </div>
-                    `;
-                }).join('');
-                
-                chatMessagesContainer.innerHTML = messagesHTML;
-                
-                // Scroll to bottom
-                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-                
-            } catch (error) {
-                console.error('Error loading messages:', error);
-                document.getElementById('chat-messages').innerHTML = `
-                    <div class="error-message">
-                        <p>Error loading messages. Please try again later.</p>
-                    </div>
-                `;
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
             }
+          }
+          
+          if (messages.length === 0) {
+            chatMessagesContainer.innerHTML = `
+              ${contextHTML}
+              <p class="no-data-message">No messages in this conversation yet.</p>
+            `;
+            return;
+          }
+          
+          // Format the messages with context at the top
+          const messagesHTML = `
+            ${contextHTML}
+            ${messages.map(msg => {
+              const isCurrentUser = msg.sent_by_me;
+              const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+              const date = new Date(msg.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              
+              return `
+                <div class="message ${messageClass}">
+                  <div class="message-content">${msg.text}</div>
+                  <div class="message-info">
+                    ${isCurrentUser ? 'You' : msg.sender.name} • ${date}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          `;
+          
+          chatMessagesContainer.innerHTML = messagesHTML;
+          
+          // Scroll to bottom
+          chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+          
+        } catch (error) {
+          console.error('Error loading messages:', error);
+          document.getElementById('chat-messages').innerHTML = `
+            <div class="error-message">
+              <p>Error loading messages. Please try again later.</p>
+            </div>
+          `;
         }
-        
+      }
+              
         // Send a message
         async function sendMessage(conversationId, messageText) {
             try {
@@ -1148,60 +1194,113 @@
             }
         }
         
-        async function messageStudent(studentId) {
-            try {
-                // Create or get conversation with student
-                const response = await Auth.authFetch('/messages/conversations', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        participant_id: studentId
-                    }),
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to create conversation');
+        // For tutor-dashboard.html
+      function messageStudent(studentId) {
+        // Step 1: Fetch all existing conversations for the tutor
+        Auth.authFetch('/messages/conversations')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch conversations');
+            }
+            return response.json();
+          })
+          .then(conversations => {
+            // Step 2: Check if we already have a conversation with this student
+            const existingConversation = conversations.find(conv => 
+              conv.participant && conv.participant.id == studentId
+            );
+            
+            if (existingConversation) {
+              // Step 3A: If a conversation exists, navigate to it
+              console.log('Found existing conversation:', existingConversation.id);
+              
+              // Switch to the messages tab
+              switchToTab('messages');
+              
+              // Wait a moment for the tab to load, then select the conversation
+              setTimeout(() => {
+                const conversationItem = document.querySelector(`.conversation-item[data-id="${existingConversation.id}"]`);
+                if (conversationItem) {
+                  conversationItem.click();
+                } else {
+                  console.warn('Conversation item not found in UI');
                 }
+              }, 500);
+            } else {
+              // Step 3B: If no conversation exists, create a new one
+              console.log('No existing conversation, creating new one with student:', studentId);
+              
+              Auth.authFetch('/messages/conversations', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  participant_id: studentId
+                }),
+              })
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Failed to create conversation');
+                }
+                return response.json();
+              })
+              .then(conversation => {
+                console.log('Created new conversation:', conversation.id);
                 
-                const conversation = await response.json();
-                
-                // Switch to messages tab
+                // Switch to the messages tab
                 switchToTab('messages');
                 
-                // Load conversations and select the one with this student
-                await loadConversations();
-                
-                // Find and click the conversation
+                // Wait a moment for the tab to load
                 setTimeout(() => {
+                  // Reload the conversations list to include the new conversation
+                  loadConversations().then(() => {
+                    // Find and select the new conversation in the UI
                     const conversationItem = document.querySelector(`.conversation-item[data-id="${conversation.id}"]`);
                     if (conversationItem) {
-                        conversationItem.click();
+                      conversationItem.click();
+                    } else {
+                      console.warn('New conversation item not found in UI');
                     }
+                  });
                 }, 500);
-                
-            } catch (error) {
+              })
+              .catch(error => {
                 console.error('Error creating conversation:', error);
-                alert('Failed to start conversation with student: ' + error.message);
+                alert('Failed to create conversation: ' + error.message);
+              });
             }
-        }
-        
-        // Set up event handlers
+          })
+          .catch(error => {
+            console.error('Error checking existing conversations:', error);
+            alert('Error accessing messages: ' + error.message);
+          });
+      }
+              
+       // In the setupEventHandlers function
         function setupEventHandlers() {
-            // Message form submission
-            document.getElementById('message-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const messageInput = document.getElementById('message-input');
-                const messageText = messageInput.value.trim();
-                const conversationId = this.getAttribute('data-conversation');
-                
-                if (messageText && conversationId) {
-                    sendMessage(conversationId, messageText);
-                    messageInput.value = '';
-                }
-            });
+          // Message form submission
+          document.getElementById('message-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const messageInput = document.getElementById('message-input');
+            const messageText = messageInput.value.trim();
+            const conversationId = this.getAttribute('data-conversation');
+            
+            if (messageText && conversationId) {
+              sendMessage(conversationId, messageText);
+              messageInput.value = '';
+            }
+          });
+          
+          // Ensure any button with messageStudent will use the updated function
+          document.querySelectorAll('[onclick^="messageStudent"]').forEach(btn => {
+            const studentId = btn.getAttribute('onclick').match(/messageStudent\('([^']+)'\)/)[1];
+            btn.onclick = function() {
+              messageStudent(studentId);
+              return false;
+            };
+          });
         }
     </script>
 </body>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - TutorConnect</title>
     <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../dashboard.css">
+    <link rel="stylesheet" href="../css/student-dashboard.css">
 </head>
 <body>
     <header>
@@ -318,92 +318,117 @@
                 
                 let status;
                 switch (filter) {
-                    case 'upcoming':
-                        status = 'confirmed';
-                        break;
-                    case 'past':
-                        status = 'completed';
-                        break;
-                    case 'pending':
-                        status = 'pending';
-                        break;
-                    default:
-                        status = '';
+                case 'upcoming':
+                    status = 'confirmed';
+                    break;
+                case 'past':
+                    status = 'completed';
+                    break;
+                case 'pending':
+                    status = 'pending';
+                    break;
+                default:
+                    status = '';
                 }
                 
                 const url = status ? `/appointments?status=${status}` : '/appointments';
                 const response = await Auth.authFetch(url);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to load appointments');
+                throw new Error('Failed to load appointments');
                 }
                 
                 const appointments = await response.json();
                 
                 if (appointments.length === 0) {
-                    appointmentsList.innerHTML = `<p class="no-data-message">No ${filter} appointments found.</p>`;
-                    return;
+                appointmentsList.innerHTML = `<p class="no-data-message">No ${filter} appointments found.</p>`;
+                return;
+                }
+                
+                // Fetch reviews for completed appointments
+                let reviewsMap = {};
+                if (status === 'completed') {
+                // Fetch all reviews for this student's appointments
+                const reviewsResponse = await Auth.authFetch('/reviews/student');
+                if (reviewsResponse.ok) {
+                    const reviews = await reviewsResponse.json();
+                    // Create a map of appointment_id -> review
+                    reviews.forEach(review => {
+                    reviewsMap[review.appointment_id] = review;
+                    });
+                }
                 }
                 
                 const appointmentsHTML = appointments.map(appointment => {
-                    const date = new Date(appointment.start_time).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    let actionsHTML = '';
-                    if (appointment.status === 'confirmed') {
-                        actionsHTML = `
-                            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
-                            <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
-                        `;
-                    } else if (appointment.status === 'pending') {
-                        actionsHTML = `
-                            <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
-                            <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
-                        `;
-                    } else if (appointment.status === 'completed') {
-                        actionsHTML = `
-                            <button class="btn-primary btn-sm" onclick="openReviewModal('${appointment.id}')">Leave Review</button>
-                            <button class="btn-outline btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
-                        `;
-                    }
-                    
-                    return `
-                        <div class="appointment-card">
-                            <div class="appointment-header">
-                                <span class="appointment-subject">${appointment.subject}</span>
-                                <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
-                            </div>
-                            <div class="appointment-info">
-                                <div class="appointment-tutor">
-                                    <strong>Tutor:</strong> ${appointment.tutor_name}
-                                </div>
-                                <div class="appointment-date">
-                                    <strong>Date:</strong> ${date}
-                                </div>
-                            </div>
-                            <div class="appointment-actions">
-                                ${actionsHTML}
-                            </div>
-                        </div>
+                const date = new Date(appointment.start_time).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let actionsHTML = '';
+            if (appointment.status === 'confirmed') {
+             actionsHTML = `
+              <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+             <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
+            `;
+            } else if (appointment.status === 'pending') {
+                    actionsHTML = `
+                    <button class="btn-outline btn-sm" onclick="cancelAppointment('${appointment.id}')">Cancel</button>
+                    <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
                     `;
+                } else if (appointment.status === 'completed') {
+                    // Check if a review already exists for this appointment
+                    const hasReview = reviewsMap[appointment.id];
+                    if (hasReview) {
+                    // If review exists, show disabled button
+                    actionsHTML = `
+                        <button class="btn-outline btn-sm disabled" disabled>Review Submitted</button>
+                        <button class="btn-primary btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
+                    `;
+                    } else {
+                    // If no review, show the review button
+                    actionsHTML = `
+                        <button class="btn-primary btn-sm" onclick="openReviewModal('${appointment.id}')">Leave Review</button>
+                        <button class="btn-outline btn-sm" onclick="messageTutor('${appointment.tutor_id}')">Message Tutor</button>
+                    `;
+                    }
+                }
+                
+                return `
+                    <div class="appointment-card">
+                    <div class="appointment-header">
+                        <span class="appointment-subject">${appointment.subject}</span>
+                        <span class="appointment-status status-${appointment.status}">${appointment.status}</span>
+                    </div>
+                    <div class="appointment-info">
+                        <div class="appointment-tutor">
+                        <strong>Tutor:</strong> ${appointment.tutor_name}
+                        </div>
+                        <div class="appointment-date">
+                        <strong>Date:</strong> ${date}
+                        </div>
+                    </div>
+                    <div class="appointment-actions">
+                        ${actionsHTML}
+                    </div>
+                    </div>
+                `;
                 }).join('');
                 
                 appointmentsList.innerHTML = appointmentsHTML;
             } catch (error) {
                 console.error('Error loading appointments:', error);
                 document.getElementById('appointments-list').innerHTML = `
-                    <div class="error-message">
-                        <p>Error loading appointments. Please try again later.</p>
-                    </div>
+                <div class="error-message">
+                    <p>Error loading appointments. Please try again later.</p>
+                </div>
                 `;
             }
-        }
-        
+            }
+                    
         // Load conversations
         async function loadConversations() {
             try {
@@ -461,62 +486,107 @@
             }
         }
         
-        // Load messages for a conversation
+       // Enhanced loadMessages function for both dashboards
         async function loadMessages(conversationId) {
-            try {
-                const chatMessagesContainer = document.getElementById('chat-messages');
-                chatMessagesContainer.innerHTML = '<p class="loading-message">Loading messages...</p>';
-                
-                const response = await Auth.authFetch(`/messages/conversations/${conversationId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load messages');
-                }
-                
-                const messages = await response.json();
-                
-                if (messages.length === 0) {
-                    chatMessagesContainer.innerHTML = '<p class="no-data-message">No messages in this conversation yet.</p>';
-                    return;
-                }
-                
-                const messagesHTML = messages.map(message => {
-                    const isCurrentUser = message.sent_by_me;
-                    const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
-                    const date = new Date(message.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    
-                    return `
-                        <div class="message ${messageClass}">
-                            <div class="message-content">${message.text}</div>
-                            <div class="message-info">
-                                ${isCurrentUser ? 'You' : message.sender.name} • ${date}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                chatMessagesContainer.innerHTML = messagesHTML;
-                
-                // Scroll to bottom
-                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-                
-                // Store active conversation ID
-                document.getElementById('message-form').setAttribute('data-conversation', conversationId);
-            } catch (error) {
-                console.error('Error loading messages:', error);
-                document.getElementById('chat-messages').innerHTML = `
-                    <div class="error-message">
-                        <p>Error loading messages. Please try again later.</p>
+        try {
+            const isStudent = true;
+            const chatMessagesContainer = document.getElementById('chat-messages');
+            chatMessagesContainer.innerHTML = '<p class="loading-message">Loading messages...</p>';
+            
+            // Set active conversation on message form
+            document.getElementById('message-form').setAttribute('data-conversation', conversationId);
+            
+            // Load both messages and conversation context
+            const [messagesResponse, contextResponse] = await Promise.all([
+            Auth.authFetch(`/messages/conversations/${conversationId}`),
+            Auth.authFetch(`/messages/conversations/${conversationId}/context`)
+            ]);
+            
+            if (!messagesResponse.ok) {
+            throw new Error('Failed to load messages');
+            }
+            
+            const messages = await messagesResponse.json();
+            
+            let contextHTML = '';
+            if (contextResponse.ok) {
+            const context = await contextResponse.json();
+            if (context.appointments && context.appointments.length > 0) {
+                // Create an appointment context banner
+                contextHTML = `
+                <div class="conversation-context">
+                    <div class="context-header">
+                    <span>Appointments with this ${isStudent ? 'tutor' : 'student'}</span>
                     </div>
+                    <div class="context-appointments">
+                    ${context.appointments.map(appt => {
+                        const date = new Date(appt.start_time).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit', 
+                        minute: '2-digit'
+                        });
+                        return `
+                        <div class="context-appointment-item">
+                            <span class="context-subject">${appt.subject}</span>
+                            <span class="context-date">${date}</span>
+                            <span class="context-status status-${appt.status}">${appt.status}</span>
+                        </div>
+                        `;
+                    }).join('')}
+                    </div>
+                </div>
                 `;
             }
+            }
+            
+            if (messages.length === 0) {
+            chatMessagesContainer.innerHTML = `
+                ${contextHTML}
+                <p class="no-data-message">No messages in this conversation yet.</p>
+            `;
+            return;
+            }
+            
+            // Format the messages with context at the top
+            const messagesHTML = `
+            ${contextHTML}
+            ${messages.map(msg => {
+                const isCurrentUser = msg.sent_by_me;
+                const messageClass = isCurrentUser ? 'message-sent' : 'message-received';
+                const date = new Date(msg.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+                });
+                
+                return `
+                <div class="message ${messageClass}">
+                    <div class="message-content">${msg.text}</div>
+                    <div class="message-info">
+                    ${isCurrentUser ? 'You' : msg.sender.name} • ${date}
+                    </div>
+                </div>
+                `;
+            }).join('')}
+            `;
+            
+            chatMessagesContainer.innerHTML = messagesHTML;
+            
+            // Scroll to bottom
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+            
+        } catch (error) {
+            console.error('Error loading messages:', error);
+            document.getElementById('chat-messages').innerHTML = `
+            <div class="error-message">
+                <p>Error loading messages. Please try again later.</p>
+            </div>
+            `;
         }
-        
+        }
+                
         // Send a message
         async function sendMessage(conversationId, messageText) {
             try {
@@ -628,8 +698,29 @@
         }
         
         // Message a tutor
+       // Updated messageTutor function (for student dashboard)
         function messageTutor(tutorId) {
-            Auth.authFetch('/messages/conversations', {
+        // First check if we already have a conversation with this tutor
+        Auth.authFetch('/messages/conversations')
+            .then(response => response.json())
+            .then(conversations => {
+            // Look for an existing conversation with this tutor
+            const existingConversation = conversations.find(conv => 
+                conv.participant && conv.participant.id == tutorId
+            );
+            
+            if (existingConversation) {
+                // Use existing conversation
+                switchTab('messages');
+                setTimeout(() => {
+                const conversationItem = document.querySelector(`.conversation-item[data-id="${existingConversation.id}"]`);
+                if (conversationItem) {
+                    conversationItem.click();
+                }
+                }, 500);
+            } else {
+                // Create new conversation
+                Auth.authFetch('/messages/conversations', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -637,29 +728,33 @@
                 body: JSON.stringify({
                     participant_id: tutorId
                 }),
-            })
-            .then(response => {
+                })
+                .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to create conversation');
                 }
                 return response.json();
-            })
-            .then(conversation => {
-                // Switch to messages tab
+                })
+                .then(conversation => {
                 switchTab('messages');
                 
-                // The messages tab should load conversations on activation
-                // Then select the conversation with the tutor
                 setTimeout(() => {
+                    loadConversations().then(() => {
                     const conversationItem = document.querySelector(`.conversation-item[data-id="${conversation.id}"]`);
                     if (conversationItem) {
                         conversationItem.click();
                     }
+                    });
                 }, 500);
-            })
-            .catch(error => {
+                })
+                .catch(error => {
                 console.error('Error creating conversation:', error);
                 alert('Failed to create conversation: ' + error.message);
+                });
+            }
+            })
+            .catch(error => {
+            console.error('Error checking existing conversations:', error);
             });
         }
         

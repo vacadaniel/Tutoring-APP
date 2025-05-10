@@ -3,62 +3,111 @@ const express = require('express');
 module.exports = (pool) => {
   const router = express.Router();
   
-  // Create a new conversation
-  router.post('/conversations', async (req, res) => {
-    try {
-      const { participant_id } = req.body;
-      const user_id = req.user.id;
-      
-      console.log('Creating conversation between:', user_id, 'and', participant_id);
-      
-      if (!participant_id) {
-        return res.status(400).json({ error: 'Participant ID is required' });
-      }
-      
-      // Check if the participant exists
-      const [userRows] = await pool.query(
-        'SELECT * FROM users WHERE id = ?',
-        [participant_id]
-      );
-      
-      if (userRows.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      
-      // Check if conversation already exists using simpler query
-      const [checkRows] = await pool.query(
-        `SELECT * FROM conversations 
-         WHERE participants LIKE ? AND participants LIKE ?`,
-        [`%${user_id}%`, `%${participant_id}%`]
-      );
-      
-      if (checkRows.length > 0) {
-        console.log('Conversation already exists:', checkRows[0]);
-        return res.json(checkRows[0]);
-      }
-      
-      // Create new conversation - This is already stored as JSON in MySQL
-      const participants = [parseInt(user_id), parseInt(participant_id)];
-      console.log('Creating new conversation with participants:', participants);
-      
-      const [result] = await pool.query(
-        'INSERT INTO conversations (participants) VALUES (?)',
-        [JSON.stringify(participants)]
-      );
-      
-      // Get the created conversation
-      const [conversationRows] = await pool.query(
-        'SELECT * FROM conversations WHERE id = ?',
-        [result.insertId]
-      );
-      
-      console.log('Created conversation:', conversationRows[0]);
-      res.status(201).json(conversationRows[0]);
-    } catch (error) {
-      console.error('Create conversation error:', error);
-      res.status(500).json({ error: 'Server error creating conversation' });
+ // Modified conversation creation endpoint
+router.post('/conversations', async (req, res) => {
+  try {
+    const { participant_id } = req.body;
+    const user_id = req.user.id;
+    
+    console.log('Creating/getting conversation between:', user_id, 'and', participant_id);
+    
+    if (!participant_id) {
+      return res.status(400).json({ error: 'Participant ID is required' });
     }
-  });
+    
+    // Check if the participant exists
+    const [userRows] = await pool.query(
+      'SELECT * FROM users WHERE id = ?',
+      [participant_id]
+    );
+    
+    if (userRows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Check if conversation already exists between these users (improved query)
+    const [checkRows] = await pool.query(
+      `SELECT * FROM conversations 
+       WHERE JSON_CONTAINS(participants, ?) 
+       AND JSON_CONTAINS(participants, ?)`,
+      [JSON.stringify(parseInt(user_id)), JSON.stringify(parseInt(participant_id))]
+    );
+    
+    if (checkRows.length > 0) {
+      console.log('Conversation already exists:', checkRows[0]);
+      return res.json(checkRows[0]);
+    }
+    
+    // Create new conversation - This is already stored as JSON in MySQL
+    const participants = [parseInt(user_id), parseInt(participant_id)];
+    console.log('Creating new conversation with participants:', participants);
+    
+    const [result] = await pool.query(
+      'INSERT INTO conversations (participants) VALUES (?)',
+      [JSON.stringify(participants)]
+    );
+    
+    // Get the created conversation
+    const [conversationRows] = await pool.query(
+      'SELECT * FROM conversations WHERE id = ?',
+      [result.insertId]
+    );
+    
+    console.log('Created conversation:', conversationRows[0]);
+    res.status(201).json(conversationRows[0]);
+  } catch (error) {
+    console.error('Create conversation error:', error);
+    res.status(500).json({ error: 'Server error creating conversation' });
+  }
+});
+
+// New endpoint to get conversation context for messages
+router.get('/conversations/:id/context', async (req, res) => {
+  try {
+    const conversationId = req.params.id;
+    const userId = req.user.id;
+    
+    // Check if the conversation exists and user is participant
+    const [checkRows] = await pool.query(
+      `SELECT * FROM conversations
+       WHERE id = ? AND JSON_CONTAINS(participants, ?)`,
+      [conversationId, JSON.stringify(parseInt(userId))]
+    );
+    
+    if (checkRows.length === 0) {
+      return res.status(404).json({ error: 'Conversation not found or not authorized' });
+    }
+    
+    // Find the other participant in the conversation
+    const participants = checkRows[0].participants;
+    const otherParticipantId = participants.find(id => parseInt(id) !== parseInt(userId));
+    
+    if (!otherParticipantId) {
+      return res.status(404).json({ error: 'Could not find other participant' });
+    }
+    
+    // Get appointments between these users
+    const [appointmentRows] = await pool.query(
+      `SELECT 
+         id, subject, start_time, status
+       FROM appointments
+       WHERE 
+         (student_id = ? AND tutor_id = ?) OR
+         (student_id = ? AND tutor_id = ?)
+       ORDER BY start_time DESC
+       LIMIT 5`,
+      [userId, otherParticipantId, otherParticipantId, userId]
+    );
+    
+    res.json({
+      conversation_id: conversationId,
+      appointments: appointmentRows
+    });
+  } catch (error) {
+    console.error('Get conversation context error:', error);
+    res.status(500).json({ error: 'Server error fetching conversation context' });
+  }
+});
   
   // Get all conversations for the current user
   router.get('/conversations', async (req, res) => {

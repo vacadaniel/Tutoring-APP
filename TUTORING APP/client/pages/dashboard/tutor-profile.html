@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutor Profile - TutorConnect</title>
     <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../tutor-profile.css">
+    <link rel="stylesheet" href="../css/tutor-profile.css">
 </head>
 <body>
     <header>
@@ -123,8 +123,9 @@
                     return;
                 }
                 
+                const tutorId = getTutorId();
                 messageTutor(tutorId);
-            });
+                });
         });
         
         // Extract tutor ID from URL

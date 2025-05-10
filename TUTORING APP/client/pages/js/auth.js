@@ -91,8 +91,21 @@ function isLoggedIn() {
   const token = localStorage.getItem('token');
   const user = localStorage.getItem('user');
   const isLoggedIn = !!token && !!user;
-  console.log('Checking login status:', isLoggedIn);
-  return isLoggedIn;
+  console.log('Checking login status:', isLoggedIn, 'Token exists:', !!token, 'User exists:', !!user);
+  
+  if (token && user) {
+    try {
+      // Make sure user is valid JSON
+      const userData = JSON.parse(user);
+      console.log('User data exists with role:', userData.role);
+      return true;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      return false;
+    }
+  }
+  
+  return false;
 }
 
 // Function to logout user

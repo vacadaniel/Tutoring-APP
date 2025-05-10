@@ -145,6 +145,26 @@ module.exports = (pool) => {
     }
   });
   
+  router.get('/student', async (req, res) => {
+    try {
+      const userId = req.user.id;
+      
+      // Get reviews for appointments where this student is involved
+      const [reviewRows] = await pool.query(
+        `SELECT r.*, a.student_id, a.tutor_id
+         FROM reviews r
+         JOIN appointments a ON r.appointment_id = a.id
+         WHERE a.student_id = ?`,
+        [userId]
+      );
+      
+      res.json(reviewRows);
+    } catch (error) {
+      console.error('Get student reviews error:', error);
+      res.status(500).json({ error: 'Server error fetching student reviews' });
+    }
+  });
+
   // Update a review (only allowed for the student who created it)
   router.put('/:id', async (req, res) => {
     try {

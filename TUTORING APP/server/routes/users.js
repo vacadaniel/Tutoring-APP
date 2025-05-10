@@ -125,7 +125,7 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       const userId = req.user.id;
       
       const [rows] = await pool.query(
-        'SELECT id, name, email, role, school FROM users WHERE id = ?',
+        'SELECT id, name, email, role, school, bio, hourly_rate, subjects FROM users WHERE id = ?',
         [userId]
       );
       
@@ -133,7 +133,24 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
         return res.status(404).json({ error: 'User not found' });
       }
       
-      res.json(rows[0]);
+      const user = rows[0];
+      
+      // Parse subjects if they're stored as JSON
+      if (user.subjects) {
+        try {
+          if (typeof user.subjects === 'string') {
+            user.subjects = JSON.parse(user.subjects);
+          }
+          // If it's already an object, MySQL has parsed it for us
+        } catch (e) {
+          console.error('Error parsing subjects:', e);
+          user.subjects = [];
+        }
+      } else {
+        user.subjects = [];
+      }
+      
+      res.json(user);
     } catch (error) {
       console.error('Profile fetch error:', error);
       res.status(500).json({ error: 'Server error fetching profile' });
@@ -144,22 +161,61 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
   router.put('/profile', authenticateToken, async (req, res) => {
     try {
       const userId = req.user.id;
-      const { name, email, school, password } = req.body;
+      const { name, email, school, bio, hourly_rate, subjects, password } = req.body;
       
-      let query, values;
+      // Start building the query and values array
+      let queryParts = [];
+      let values = [];
       
-      // If password is being updated
+      // Add fields that should be updated
+      if (name) {
+        queryParts.push('name = ?');
+        values.push(name);
+      }
+      
+      if (email) {
+        queryParts.push('email = ?');
+        values.push(email);
+      }
+      
+      if (school) {
+        queryParts.push('school = ?');
+        values.push(school);
+      }
+      
+      if (bio !== undefined) {
+        queryParts.push('bio = ?');
+        values.push(bio);
+      }
+      
+      if (hourly_rate !== undefined) {
+        queryParts.push('hourly_rate = ?');
+        values.push(hourly_rate);
+      }
+      
+      if (subjects !== undefined) {
+        queryParts.push('subjects = ?');
+        values.push(JSON.stringify(subjects));
+      }
+      
+      // Handle password update separately
       if (password) {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        
-        query = 'UPDATE users SET name = ?, email = ?, school = ?, password = ? WHERE id = ?';
-        values = [name, email, school, hashedPassword, userId];
-      } else {
-        query = 'UPDATE users SET name = ?, email = ?, school = ? WHERE id = ?';
-        values = [name, email, school, userId];
+        queryParts.push('password = ?');
+        values.push(hashedPassword);
       }
       
+      // If no fields to update, return early
+      if (queryParts.length === 0) {
+        return res.status(400).json({ error: 'No valid fields to update' });
+      }
+      
+      // Complete the query
+      const query = `UPDATE users SET ${queryParts.join(', ')} WHERE id = ?`;
+      values.push(userId);
+      
+      // Execute the update
       const [result] = await pool.query(query, values);
       
       if (result.affectedRows === 0) {
@@ -168,39 +224,168 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       
       // Get updated user
       const [rows] = await pool.query(
-        'SELECT id, name, email, role, school FROM users WHERE id = ?',
+        'SELECT id, name, email, role, school, bio, hourly_rate, subjects FROM users WHERE id = ?',
         [userId]
       );
       
-      res.json(rows[0]);
+      const updatedUser = rows[0];
+      
+      // Parse subjects if needed
+      if (updatedUser.subjects) {
+        try {
+          if (typeof updatedUser.subjects === 'string') {
+            updatedUser.subjects = JSON.parse(updatedUser.subjects);
+          }
+        } catch (e) {
+          console.error('Error parsing subjects:', e);
+          updatedUser.subjects = [];
+        }
+      }
+      
+      res.json(updatedUser);
     } catch (error) {
       console.error('Profile update error:', error);
       res.status(500).json({ error: 'Server error updating profile' });
     }
   });
   
-  // Get all tutors with optional filtering
+  // Get all tutors with enhanced filtering by school, subject, and rating
   router.get('/tutors', async (req, res) => {
     try {
       const { school, subject, rating } = req.query;
       
-      let query = 'SELECT u.id, u.name, u.email, u.school FROM users u WHERE u.role = ?';
-      let values = ['tutor'];
+      // Base query to get tutors with their average rating
+      let query = `
+        SELECT 
+          u.id, 
+          u.name, 
+          u.email, 
+          u.school, 
+          u.subjects,
+          u.hourly_rate,
+          COALESCE(AVG(r.rating), 0) as avgRating,
+          COUNT(DISTINCT r.id) as reviewCount,
+          COUNT(DISTINCT a.id) as sessionCount
+        FROM 
+          users u
+        LEFT JOIN 
+          appointments a ON u.id = a.tutor_id AND a.status = 'completed'
+        LEFT JOIN 
+          reviews r ON a.id = r.appointment_id
+        WHERE 
+          u.role = ?
+      `;
       
+      let values = ['tutor'];
+      let groupBy = ' GROUP BY u.id';
+      let having = '';
+      
+      // Add school filter if provided
       if (school) {
         query += ' AND u.school = ?';
         values.push(school);
       }
       
-      // NOTE: This is a simplified implementation. In a real application, you would need
-      // additional tables for subjects and more complex queries for filtering by subject and rating
+      // Add subject filter if provided
+      if (subject && subject.trim() !== '') {
+        query += ' AND JSON_CONTAINS(u.subjects, ?) OR JSON_SEARCH(u.subjects, "one", ?) IS NOT NULL';
+        values.push(JSON.stringify(subject.trim()));
+        values.push(`%${subject.trim()}%`);
+      }
       
+      // Complete the query
+      query += groupBy;
+      
+      // Add rating filter if provided
+      if (rating && !isNaN(parseFloat(rating))) {
+        having = ` HAVING avgRating >= ${parseFloat(rating)}`;
+        query += having;
+      }
+      
+      // Execute the query
       const [rows] = await pool.query(query, values);
       
-      res.json(rows);
+      // Process results to ensure proper format
+      const tutors = rows.map(tutor => {
+        // Parse subjects if they're stored as JSON
+        let subjects = [];
+        if (tutor.subjects) {
+          try {
+            if (typeof tutor.subjects === 'string') {
+              subjects = JSON.parse(tutor.subjects);
+            } else {
+              subjects = tutor.subjects;
+            }
+          } catch (e) {
+            console.error('Error parsing subjects:', e);
+          }
+        }
+        
+        return {
+          id: tutor.id,
+          name: tutor.name,
+          email: tutor.email,
+          school: tutor.school,
+          subjects: subjects,
+          hourly_rate: tutor.hourly_rate || 30, // Default hourly rate if not set
+          avgRating: parseFloat(tutor.avgRating) || 0,
+          reviewCount: parseInt(tutor.reviewCount) || 0,
+          sessionCount: parseInt(tutor.sessionCount) || 0
+        };
+      });
+      
+      res.json(tutors);
     } catch (error) {
       console.error('Get tutors error:', error);
       res.status(500).json({ error: 'Server error fetching tutors' });
+    }
+  });
+  
+  // Get available schools for dropdown
+  router.get('/schools', async (req, res) => {
+    try {
+      const [rows] = await pool.query(
+        'SELECT DISTINCT school FROM users ORDER BY school'
+      );
+      
+      const schools = rows.map(row => row.school);
+      res.json(schools);
+    } catch (error) {
+      console.error('Get schools error:', error);
+      res.status(500).json({ error: 'Server error fetching schools' });
+    }
+  });
+  
+  // Get available subjects for dropdown
+  router.get('/subjects', async (req, res) => {
+    try {
+      const [rows] = await pool.query(
+        `SELECT subjects FROM users WHERE subjects IS NOT NULL AND JSON_LENGTH(subjects) > 0`
+      );
+      
+      // Extract and flatten all subjects from all tutors
+      const allSubjects = new Set();
+      rows.forEach(row => {
+        let subjects = [];
+        try {
+          if (typeof row.subjects === 'string') {
+            subjects = JSON.parse(row.subjects);
+          } else {
+            subjects = row.subjects;
+          }
+          
+          if (Array.isArray(subjects)) {
+            subjects.forEach(subject => allSubjects.add(subject));
+          }
+        } catch (e) {
+          console.error('Error parsing subjects:', e);
+        }
+      });
+      
+      res.json(Array.from(allSubjects).sort());
+    } catch (error) {
+      console.error('Get subjects error:', error);
+      res.status(500).json({ error: 'Server error fetching subjects' });
     }
   });
   
@@ -220,7 +405,6 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       }
       
       const tutor = tutorRows[0];
-      console.log("Tutor from database:", tutor); // Debug log
       
       // Parse subjects if stored as JSON string
       if (tutor.subjects && typeof tutor.subjects === 'string') {
@@ -232,7 +416,6 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
         }
       } else if (tutor.subjects && typeof tutor.subjects === 'object') {
         // MySQL returns JSON as object already, so we're good
-        console.log("Subjects already parsed:", tutor.subjects);
       } else {
         // Default empty array if no subjects
         tutor.subjects = [];
@@ -267,14 +450,20 @@ module.exports = (pool, bcrypt, jwt, JWT_SECRET, authenticateToken) => {
       
       const totalSessions = sessionRows[0]?.total_sessions || 0;
       
+      // Calculate average rating
+      let avgRating = 0;
+      if (reviewsRows.length > 0) {
+        const sum = reviewsRows.reduce((total, review) => total + review.rating, 0);
+        avgRating = sum / reviewsRows.length;
+      }
+      
       // Final response with all data
       const response = {
         ...tutor,
         total_sessions: totalSessions,
+        avg_rating: avgRating.toFixed(1),
         reviews: reviewsRows
       };
-      
-      console.log("Final response:", response); // Debug log
       
       res.json(response);
     } catch (error) {

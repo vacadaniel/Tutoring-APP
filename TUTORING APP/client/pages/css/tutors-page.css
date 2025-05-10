@@ -19,8 +19,63 @@
 
 .filter-row {
   display: flex;
-  gap: 15px;
+  gap: 20px; /* Increased gap between filter elements */
   align-items: flex-end;
+}
+
+/* Enhanced dropdown styles for the tutors-page.css file */
+.search-filters select,
+.search-filters input {
+  width: 100%;
+  padding: 14px 16px; /* Increased padding for larger height */
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.9);
+  font-size: 16px; /* Slightly larger font */
+  color: #333;
+  appearance: none; /* Removes default browser styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-filters select:focus,
+.search-filters input:focus {
+  outline: 2px solid #fe7f2d;
+  box-shadow: 0 0 0 4px rgba(254, 127, 45, 0.2);
+}
+
+.search-filters label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 220px; /* Increased min-width for more space */
+  margin-bottom: 15px;
+}
+
+/* Make dropdown options larger when open */
+select option {
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* Style for the search button to match dropdowns */
+#search-btn {
+  padding: 14px 25px;
+  align-self: flex-end;
+  margin-top: 27px; /* Aligns with the bottom of dropdowns if there are labels */
+  font-size: 16px;
+  min-width: 120px;
 }
 
 /* Tutor results styling */
@@ -122,11 +177,16 @@
 @media (max-width: 992px) {
   .filter-row {
     flex-direction: column;
-    gap: 15px;
   }
   
   .filter-group {
     width: 100%;
+  }
+  
+  #search-btn {
+    margin-top: 15px;
+    width: 100%;
+    align-self: center;
   }
 }
 
