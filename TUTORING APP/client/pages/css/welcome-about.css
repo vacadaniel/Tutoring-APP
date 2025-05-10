@@ -1,0 +1,170 @@
+@import url('base.css');
+
+/* Hero section */
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hero-content {
+  flex: 1;
+  text-align: left;
+  padding-right: 40px;
+}
+
+.tagline {
+  font-size: 1.4em;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+/* Login container */
+.login-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  padding: 30px;
+  width: 350px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.login-container h2 {
+  color: #ffffff;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: left;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+}
+
+.remember-me input {
+  margin-right: 5px;
+}
+
+.forgot-password {
+  color: #fe7f2d;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.login-button {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.login-button:hover {
+  background-color: #fe7f2d;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.login-button:active {
+  transform: scale(0.98);
+}
+
+.signup-link {
+  font-size: 14px;
+  margin-top: 15px;
+}
+
+.signup-link a {
+  color: #fe7f2d;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+/* Features section */
+.features {
+  max-width: 1200px;
+  margin: 80px auto 0;
+  padding: 0 20px;
+}
+
+.features h2 {
+  font-size: 2.5em;
+  margin-bottom: 40px;
+}
+
+.feature-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  padding: 30px;
+  flex: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.icon {
+  font-size: 3em;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.feature-card p {
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+  .hero {
+    flex-direction: column;
+  }
+  
+  .hero-content {
+    text-align: center;
+    padding-right: 0;
+    margin-bottom: 40px;
+  }
+  
+  .feature-cards {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    width: 100%;
+    max-width: 350px;
+  }
+}

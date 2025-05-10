@@ -1,0 +1,323 @@
+@import url('base.css');
+
+/* Dashboard-specific styles */
+.dashboard-header {
+  text-align: center;
+  padding: 20px 0 40px;
+}
+
+.dashboard-tabs {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 30px;
+}
+
+.tab-btn {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  opacity: 1;
+}
+
+.tab-btn.active {
+  opacity: 1;
+  border-bottom: 3px solid #fe7f2d;
+}
+
+.tab-pane {
+  display: none;
+  padding: 20px 0;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* Appointments */
+.appointments-filter {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.filter-btn {
+  background: rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+  background-color: #fe7f2d;
+}
+
+.appointment-card {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.appointment-subject {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.appointment-status {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #f0ad4e;
+  color: #000000;
+}
+
+.status-confirmed {
+  background-color: #5bc0de;
+  color: #000000;
+}
+
+.status-completed {
+  background-color: #5cb85c;
+  color: #000000;
+}
+
+.status-canceled {
+  background-color: #d9534f;
+  color: #ffffff;
+}
+
+.appointment-info {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.appointment-tutor, .appointment-student {
+  flex: 1;
+}
+
+.appointment-date {
+  flex: 1;
+  text-align: right;
+}
+
+.appointment-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Messages tab styles */
+.messages-container {
+  display: flex;
+  height: 500px;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.conversations-list {
+  width: 30%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  overflow-y: auto;
+}
+
+.conversation-items {
+  padding: 10px;
+}
+
+.conversation-item {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.conversation-item:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.conversation-item.active {
+  background-color: rgba(254, 127, 45, 0.3);
+}
+
+.conversation-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.conversation-preview {
+  font-size: 0.9em;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 15px;
+  max-width: 70%;
+}
+
+.message-sent {
+  margin-left: auto;
+  background-color: #fe7f2d;
+  color: #000000;
+  border-radius: 12px 12px 0 12px;
+  padding: 10px 15px;
+}
+
+.message-received {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px 12px 12px 0;
+  padding: 10px 15px;
+}
+
+.message-info {
+  font-size: 0.8em;
+  margin-top: 5px;
+  opacity: 0.7;
+}
+
+.chat-input {
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-form {
+  display: flex;
+  gap: 10px;
+}
+
+.message-input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Profile tab styles */
+.profile-form {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.save-button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* Rating input */
+.rating-input {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.rating-input input {
+  display: none;
+}
+
+.rating-input label {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 30px;
+  color: #ccc;
+  transition: color 0.3s;
+  margin-right: 10px;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input:checked ~ label {
+  color: #fe7f2d;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+  .messages-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .conversations-list {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tab-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+  
+  .appointment-info {
+    flex-direction: column;
+  }
+  
+  .appointment-date {
+    text-align: left;
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .appointment-header,
+  .appointment-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .appointment-status {
+    align-self: flex-start;
+    margin-top: 5px;
+  }
+}
