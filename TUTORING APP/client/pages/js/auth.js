@@ -216,7 +216,7 @@ function updateNavigation() {
       <li><a href="../homepage/welcome.html">Home</a></li>
       <li><a href="../aboutpage/about.html">About</a></li>
       <li><a href="../dashboard/tutors.html">Find Tutors</a></li>
-      <li><a href="../dashboard/become-tutor.html" class="btn-secondary">Become a Tutor</a></li>
+      <li><a href="../dashboard/join.html" class="btn-secondary">Sign Up</a></li>
     `;
   }
   

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join TutorConnect - Choose Your Role</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/tutor-signup.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <!-- Navigation links will be inserted here by JavaScript -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="tutor-signup">
+            <div class="form-header">
+                <h1>Join TutorConnect</h1>
+                <p class="subtitle">Choose how you want to use our platform</p>
+            </div>
+            
+            <div class="role-selection">
+                <a href="./student-signup.html" class="role-button">
+                    <div class="role-icon">👨‍🎓</div>
+                    <div class="role-title">I'm a Student</div>
+                    <div class="role-desc">Looking for help with my studies</div>
+                </a>
+                
+                <a href="./become-tutor.html" class="role-button">
+                    <div class="role-icon">👩‍🏫</div>
+                    <div class="role-title">I'm a Tutor</div>
+                    <div class="role-desc">Ready to help others learn</div>
+                </a>
+            </div>
+            
+            <div class="form-card">
+                <h2>Why Choose TutorConnect?</h2>
+                <p>Our platform connects students with peer tutors at their own school, making it easy to find academic help that's both convenient and effective.</p>
+                
+                <div class="benefits-grid" style="margin-top: 20px;">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🏫</div>
+                        <div class="benefit-title">School-Specific</div>
+                        <p>Connect with tutors who understand your curriculum and professors.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💬</div>
+                        <div class="benefit-title">Direct Messaging</div>
+                        <p>Communicate directly to find the right match for your needs.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⏰</div>
+                        <div class="benefit-title">Flexible Scheduling</div>
+                        <p>Book sessions that fit into your busy academic life.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">✅</div>
+                        <div class="benefit-title">Proven Results</div>
+                        <p>Read reviews from other students to find quality tutors.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update navigation
+            if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+                Auth.updateNavigation();
+            }
+        });
+    </script>
+</body>
+</html>

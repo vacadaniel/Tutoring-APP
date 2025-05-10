@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join as a Student - TutorConnect</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/tutor-signup.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">TutorConnect</div>
+            <ul>
+                <!-- Navigation links will be inserted here by JavaScript -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="tutor-signup">
+            <div class="form-header">
+                <h1>Join as a Student</h1>
+                <p class="subtitle">Find expert tutors to help you succeed academically</p>
+            </div>
+            
+            <div class="form-card">
+                <form id="student-signup-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" name="confirm-password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="school">School</label>
+                        <select id="school" name="school" required>
+                            <option value="">Select your school</option>
+                            <option value="State University">State University</option>
+                            <option value="Tech College">Tech College</option>
+                            <option value="Community College">Community College</option>
+                            <option value="Liberal Arts College">Liberal Arts College</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subjects-interested">Subjects You're Interested In (Optional)</label>
+                        <div class="subject-input-container">
+                            <input type="text" id="new-subject" placeholder="Enter a subject and press Enter">
+                        </div>
+                        <div class="subject-tags" id="subject-tags">
+                            <!-- Subject tags will be added here -->
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary submit-button">Create Student Account</button>
+                </form>
+            </div>
+            
+            <div class="signup-benefits">
+                <h2>Why Join TutorConnect as a Student?</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎓</div>
+                        <div class="benefit-title">Access Expert Tutors</div>
+                        <p>Find qualified tutors from your own school who understand your specific courses and assignments.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📅</div>
+                        <div class="benefit-title">Flexible Scheduling</div>
+                        <p>Book sessions when it works for you, whether in-person or virtual, to fit your busy student life.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💬</div>
+                        <div class="benefit-title">Direct Communication</div>
+                        <p>Message tutors directly to discuss your needs before booking and get personalized help.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⭐</div>
+                        <div class="benefit-title">Quality Assurance</div>
+                        <p>Read reviews from other students to find the perfect tutor match for your learning style.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by: Johnathon Nelson, Daniel Vaca, Dylan Dao</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact Us</a>
+        </div>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update navigation
+            if (typeof Auth !== 'undefined' && Auth.updateNavigation) {
+                Auth.updateNavigation();
+            }
+            
+            const subjectInput = document.getElementById('new-subject');
+            const subjectTags = document.getElementById('subject-tags');
+            const subjects = new Set();
+            
+            // Add subject tag when Enter is pressed
+            subjectInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const subject = this.value.trim();
+                    
+                    if (subject && !subjects.has(subject)) {
+                        addSubjectTag(subject);
+                        this.value = '';
+                    }
+                }
+            });
+            
+            // Function to add a subject tag
+            function addSubjectTag(subject) {
+                subjects.add(subject);
+                
+                const tag = document.createElement('div');
+                tag.className = 'subject-tag';
+                tag.innerHTML = `
+                    ${subject}
+                    <span class="remove-tag" data-subject="${subject}">×</span>
+                `;
+                
+                subjectTags.appendChild(tag);
+                
+                // Add click event to remove button
+                tag.querySelector('.remove-tag').addEventListener('click', function() {
+                    const subject = this.getAttribute('data-subject');
+                    subjects.delete(subject);
+                    this.parentElement.remove();
+                });
+            }
+            
+            // Form submission
+            document.getElementById('student-signup-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const school = document.getElementById('school').value;
+                
+                // Basic validation
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                try {
+                    // Prepare data for registration
+                    const userData = {
+                        name,
+                        email,
+                        password,
+                        role: 'student',
+                        school,
+                        subjects_interested: Array.from(subjects)
+                    };
+                    
+                    console.log('Registering student with data:', userData);
+                    
+                    // Register as student
+                    const result = await Auth.registerUser(userData);
+                    
+                    alert(`Welcome to TutorConnect, ${name}! Your student account has been created successfully.`);
+                    
+                    // Redirect to student dashboard
+                    window.location.href = './student-dashboard.html';
+                } catch (error) {
+                    alert('Registration failed: ' + error.message);
+                    console.error('Registration error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
